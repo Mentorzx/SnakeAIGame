@@ -1,6 +1,6 @@
 import pygame
 import random
-from pygame.locals import *
+from pygame.locals import KEYDOWN, K_UP, K_DOWN, K_LEFT, K_RIGHT, QUIT
 
 
 def on_grid_random():

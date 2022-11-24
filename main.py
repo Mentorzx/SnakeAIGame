@@ -34,21 +34,35 @@ my_direction = LEFT
 
 clock = pygame.time.Clock()
 
+count = 0
 while True:
+    # clock.tick(10)
+    # for event in pygame.event.get():
+    #     if event.type == QUIT:
+    #         pygame.quit()
+
+    #     if event.type == KEYDOWN:
+    #         if event.key == K_UP:
+    #             my_direction = UP
+    #         if event.key == K_DOWN:
+    #             my_direction = DOWN
+    #         if event.key == K_LEFT:
+    #             my_direction = LEFT
+    #         if event.key == K_RIGHT:
+    #             my_direction = RIGHT
+
+
+    #IA
     clock.tick(10)
+
     for event in pygame.event.get():
         if event.type == QUIT:
-            pygame.quit()
+            sys.exit(2)
 
-        if event.type == KEYDOWN:
-            if event.key == K_UP:
-                my_direction = UP
-            if event.key == K_DOWN:
-                my_direction = DOWN
-            if event.key == K_LEFT:
-                my_direction = LEFT
-            if event.key == K_RIGHT:
-                my_direction = RIGHT
+    if count < 10:
+        count = count+1
+    else:
+        my_direction = random.randrange(0, 4, 1)
 
     if collision(snake[0], apple_pos):
         apple_pos = on_grid_random()

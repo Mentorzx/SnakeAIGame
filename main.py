@@ -3,86 +3,86 @@ import random
 from pygame.locals import KEYDOWN, K_UP, K_DOWN, K_LEFT, K_RIGHT, QUIT
 
 
-def on_grid_random():
-    x = random.randint(0, 590)
-    y = random.randint(0, 590)
-    return (x//10 * 10, y//10 * 10)
-
-
-def collision(c1, c2):
-    return (c1[0] == c2[0]) and (c1[1] == c2[1])
-
-
 UP = 0
 RIGHT = 1
 DOWN = 2
 LEFT = 3
 
-pygame.init()
-screen = pygame.display.set_mode((600, 600))
-pygame.display.set_caption('Snake')
 
-snake = [(200, 200), (210, 200), (220, 200)]
-snake_skin = pygame.Surface((10, 10))
-snake_skin.fill((255, 255, 255))
-
-apple_pos = on_grid_random()
-apple = pygame.Surface((10, 10))
-apple.fill((255, 0, 0))
-
-my_direction = LEFT
-
-clock = pygame.time.Clock()
-
-count = 0
-while True:
-    # clock.tick(10)
-    # for event in pygame.event.get():
-    #     if event.type == QUIT:
-    #         pygame.quit()
-
-    #     if event.type == KEYDOWN:
-    #         if event.key == K_UP:
-    #             my_direction = UP
-    #         if event.key == K_DOWN:
-    #             my_direction = DOWN
-    #         if event.key == K_LEFT:
-    #             my_direction = LEFT
-    #         if event.key == K_RIGHT:
-    #             my_direction = RIGHT
+def on_grid_random() -> tuple[int, int]:
+    x = random.randint(0, 590)
+    y = random.randint(0, 590)
+    return (x//10 * 10, y//10 * 10)
 
 
-    #IA
-    clock.tick(10)
+def collision(object1: list[int], object2: list[int]) -> bool:
+    return (object1[0] == object2[0]) and (object1[1] == object2[1])
 
-    for event in pygame.event.get():
-        if event.type == QUIT:
-            sys.exit(2)
 
-    if count < 10:
-        count = count+1
-    else:
-        my_direction = random.randrange(0, 4, 1)
+def constructs() -> tuple:
+    snake = [(200, 200), (210, 200), (220, 200)]
+    snake_skin = pygame.Surface((10, 10))
+    snake_skin.fill((255, 255, 255))
+    apple_pos = on_grid_random()
+    apple = pygame.Surface((10, 10))
+    apple.fill((255, 0, 0))
+    return snake, snake_skin, apple, apple_pos
 
-    if collision(snake[0], apple_pos):
-        apple_pos = on_grid_random()
-        snake.append((0, 0))
 
-    for i in range(len(snake) - 1, 0, -1):
-        snake[i] = (snake[i-1][0], snake[i-1][1])
+def control_AI(event, direction: int) -> int:
+    if event.type == KEYDOWN:
+        if event.key == K_UP:
+            direction = UP
+        if event.key == K_DOWN:
+            direction = DOWN
+        if event.key == K_LEFT:
+            direction = LEFT
+        if event.key == K_RIGHT:
+            direction = RIGHT
+    return direction
 
-    if my_direction == UP:
+
+def motor_snake(direction: int, snake: list) -> list:
+    if direction == UP:
         snake[0] = (snake[0][0], snake[0][1] - 10)
-    if my_direction == DOWN:
+    if direction == DOWN:
         snake[0] = (snake[0][0], snake[0][1] + 10)
-    if my_direction == RIGHT:
+    if direction == RIGHT:
         snake[0] = (snake[0][0] + 10, snake[0][1])
-    if my_direction == LEFT:
+    if direction == LEFT:
         snake[0] = (snake[0][0] - 10, snake[0][1])
+    return snake
 
-    screen.fill((0, 0, 0))
-    screen.blit(apple, apple_pos)
-    for pos in snake:
-        screen.blit(snake_skin, pos)
 
-    pygame.display.update()
+def program(name: str, display_range: int, time_game_fps: int):
+    pygame.init()
+    screen = pygame.display.set_mode((display_range, display_range))
+    pygame.display.set_caption(name)
+    snake, snake_skin, apple, apple_pos = constructs()
+    clock = pygame.time.Clock()
+    snake_direction = LEFT
+    while True:
+        clock.tick(time_game_fps)
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+            snake_direction = control_AI(event, snake_direction)
+        if collision(snake[0], apple_pos):
+            apple_pos = on_grid_random()
+            snake.append((0, 0))
+        for i in range(len(snake) - 1, 0, -1):
+            snake[i] = (snake[i-1][0], snake[i-1][1])
+        snake = motor_snake(snake_direction, snake)
+        screen.fill((0, 0, 0))
+        screen.blit(apple, apple_pos)
+        for pos in snake:
+            screen.blit(snake_skin, pos)
+        pygame.display.update()
+
+
+if __name__ == '__main__':
+    name = 'Snake AI'
+    time_game_fps = 60
+    display_range = 600
+
+    program(name, display_range, time_game_fps)

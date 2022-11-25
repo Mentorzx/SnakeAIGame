@@ -29,7 +29,7 @@ def constructs() -> tuple:
     return snake, snake_skin, apple, apple_pos
 
 
-def control_AI(event, direction: int) -> int:
+def control(event, direction: int) -> int:
     if event.type == KEYDOWN:
         if event.key == K_UP:
             direction = UP
@@ -40,6 +40,74 @@ def control_AI(event, direction: int) -> int:
         if event.key == K_RIGHT:
             direction = RIGHT
     return direction
+
+
+def redirect(input: int, direction: int) -> int:
+    if direction == UP:
+        if input == 0:
+            return LEFT 
+        if input == 1:
+            return direction
+        if input == 2:
+            return RIGHT 
+    if direction == DOWN:
+        if input == 0:
+            return RIGHT 
+        if input == 1:
+            return direction
+        if input == 2:
+            return LEFT 
+    if direction == LEFT:
+        if input == 0:
+            return DOWN 
+        if input == 1:
+            return direction
+        if input == 2:
+            return UP 
+    if direction == RIGHT:
+        if input == 0:
+            return UP 
+        if input == 1:
+            return direction
+        if input == 2:
+            return DOWN 
+
+def find_possible_collision(object1):
+    
+    if object1[0]-10 < 0:
+        return LEFT
+    if object1[0]+10 > 590:
+        return RIGHT   
+    if object1[1]-10 < 0: 
+        return UP
+    if object1[1]+10 > 590:
+        return DOWN
+    
+    return False
+
+
+
+def control_AI(direction: int, snake, apple_pos) -> int:
+    colli = find_possible_collision(snake[0])
+
+    if colli != False and colli == direction:
+        return redirect(2, direction)
+
+    if snake[0][0] != apple_pos[0]:
+        if snake[0][0] > apple_pos[0]:
+            return LEFT
+        if snake[0][0] < apple_pos[0]:
+            return RIGHT
+    if snake[0][1] != apple_pos[1]:
+        if snake[0][1] > apple_pos[1]:
+            return UP
+        if snake[0][1] < apple_pos[1]:
+            return DOWN
+    
+    return direction
+
+
+    return redirect(input, direction)
 
 
 def motor_snake(direction: int, snake: list) -> list:
@@ -66,7 +134,9 @@ def program(name: str, display_range: int, time_game_fps: int):
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
-            snake_direction = control_AI(event, snake_direction)
+        
+        snake_direction = control_AI(snake_direction, snake, apple_pos)
+        
         if collision(snake[0], apple_pos):
             apple_pos = on_grid_random()
             snake.append((0, 0))

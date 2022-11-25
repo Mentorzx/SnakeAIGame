@@ -1,3 +1,5 @@
+from pygame.locals import KEYDOWN, K_UP, K_DOWN, K_LEFT, K_RIGHT, QUIT
+import pygame
 
 UP = 0
 RIGHT = 1
@@ -5,10 +7,11 @@ DOWN = 2
 LEFT = 3
 
 class Player():
+    
     def __init__(self) -> None:
         pass
     
-    def control(event, direction: int) -> int:
+    def control(self, event, direction: int) -> int:  # Manipulate to AI
         if event.type == KEYDOWN:
             if (event.key == K_UP) and (direction != DOWN):
                 direction = UP
@@ -20,7 +23,7 @@ class Player():
                 direction = RIGHT
         return direction
     
-    def redirect(input: int, direction: int) -> int:
+    def redirect(self, input, direction):
         if direction == UP:
             if input == 0:
                 return LEFT 
@@ -50,7 +53,7 @@ class Player():
             if input == 2:
                 return DOWN 
             
-    def find_possible_collision(object1):
+    def find_possible_collision(self, object1: list):
     
         if object1[0]-10 < 0:
             return LEFT

@@ -1,7 +1,8 @@
-import pygame
+import sys
 import random
-from pygame.locals import KEYDOWN, K_UP, K_DOWN, K_LEFT, K_RIGHT, QUIT
 import ctypes
+import pygame
+from pygame.locals import KEYDOWN, K_UP, K_DOWN, K_LEFT, K_RIGHT, QUIT
 
 UP = 0
 RIGHT = 1
@@ -15,11 +16,8 @@ def on_grid_random(display_range) -> tuple[int, int]:
     return (x//10 * 10, y//10 * 10)
 
 
-def collision(object1: list[int], object2: list[int]) -> bool:
-    if (len(object1) <= 2) and (len(object2) <= 2):
-        if (object1[0] in object2) and (object1[1] in object2):
-            return True
-    elif object1 in object2:
+def collision(object1: list[int], object2: tuple) -> bool:
+    if object1 in object2:
         return True
     return False
 
@@ -42,7 +40,7 @@ def constructs(display_range: int) -> tuple:
     return snake, snake_skin, apple, apple_pos, border1, border2, border3, border4
 
 
-def control_AI(event, direction: int) -> int:
+def control_AI(event, direction: int) -> int:  # Manipulate to AI
     if event.type == KEYDOWN:
         if (event.key == K_UP) and (direction != DOWN):
             direction = UP
@@ -90,16 +88,18 @@ def program(name: str, display_range: int, time_game_fps: int):
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
+                sys.exit()
             snake_direction = control_AI(event, snake_direction)
-        if collision(snake[0], snake[1:]) or collision(snake[0], border1) or collision(snake[0], border2) or collision(snake[0], border3) or collision(snake[0], border4):
+        if collision(snake[0], tuple(snake[1:])) or collision(snake[0], border1) or collision(snake[0], border2) or collision(snake[0], border3) or collision(snake[0], border4):
             MessageBox = ctypes.windll.user32.MessageBoxW
             if MessageBox(None, 'You lose', 'Game Over', 5) == 2:
                 pygame.quit()
+                sys.exit()
             else:
-                program(name, display_range, time_game)
-        if collision(snake[0], apple_pos):  # type: ignore
+                program(name, display_range, time_game)  # Manipulate to AI
+        if collision(snake[0], tuple([apple_pos])):
             apple_pos = on_grid_random(display_range)
-            score += 1
+            score += 1  # Manipulate to AI
             snake.append((0, 0))
         for i in range(len(snake) - 1, 0, -1):
             snake[i] = (snake[i-1][0], snake[i-1][1])

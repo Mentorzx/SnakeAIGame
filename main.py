@@ -9,9 +9,9 @@ DOWN = 2
 LEFT = 3
 
 
-def on_grid_random() -> tuple[int, int]:
-    x = random.randint(0, 590)
-    y = random.randint(0, 590)
+def on_grid_random(display_range) -> tuple[int, int]:
+    x = random.randint(0, display_range-10)
+    y = random.randint(0, display_range-10)
     return (x//10 * 10, y//10 * 10)
 
 
@@ -28,7 +28,7 @@ def constructs(display_range: int) -> tuple:
     snake = [(200, 200), (210, 200), (220, 200)]
     snake_skin = pygame.Surface((10, 10))
     snake_skin.fill((255, 255, 255))
-    apple_pos = on_grid_random()
+    apple_pos = on_grid_random(display_range)
     apple = pygame.Surface((10, 10))
     apple.fill((255, 0, 0))
     border1, border2, border3, border4 = [], [], [], []
@@ -99,7 +99,7 @@ def program(name: str, display_range: int, time_game_fps: int):
                 pygame.quit()
                 program(name, display_range, time_game)
         if collision(snake[0], apple_pos):  # type: ignore
-            apple_pos = on_grid_random()
+            apple_pos = on_grid_random(display_range)
             score += 1
             snake.append((0, 0))
         for i in range(len(snake) - 1, 0, -1):
@@ -115,6 +115,6 @@ def program(name: str, display_range: int, time_game_fps: int):
 if __name__ == '__main__':
     name = 'Snake AI'
     time_game = 10
-    display_range = 600
+    display_range = 450
 
     program(name, display_range, time_game)

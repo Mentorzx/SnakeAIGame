@@ -67,6 +67,14 @@ def motor_snake(direction: int, snake: list) -> list:
     return snake
 
 
+def display_score(screen, score):
+    pygame.font.init()
+    font = pygame.font.SysFont('arial', 30)
+    text = font.render(str(score), True, (255, 255, 255))
+    screen.blit(text, (10, 10))
+    pygame.display.flip()
+
+
 def program(name: str, display_range: int, time_game_fps: int):
     pygame.init()
     screen = pygame.display.set_mode((display_range, display_range))
@@ -75,7 +83,9 @@ def program(name: str, display_range: int, time_game_fps: int):
         display_range)
     clock = pygame.time.Clock()
     snake_direction = LEFT
+    score = 0
     while True:
+        display_score(screen, score)
         clock.tick(time_game_fps)
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -87,6 +97,7 @@ def program(name: str, display_range: int, time_game_fps: int):
                 pygame.quit()
         if collision(snake[0], apple_pos):  # type: ignore
             apple_pos = on_grid_random()
+            score += 1
             snake.append((0, 0))
         for i in range(len(snake) - 1, 0, -1):
             snake[i] = (snake[i-1][0], snake[i-1][1])

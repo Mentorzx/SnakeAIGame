@@ -8,15 +8,15 @@ class Player():
     def __init__(self) -> None:
         pass
     
-    def control(event, direction: int, snake, apple_pos) -> int:
+    def control(event, direction: int) -> int:
         if event.type == KEYDOWN:
-            if event.key == K_UP:
+            if (event.key == K_UP) and (direction != DOWN):
                 direction = UP
-            if event.key == K_DOWN:
+            if (event.key == K_DOWN) and (direction != UP):
                 direction = DOWN
-            if event.key == K_LEFT:
+            if (event.key == K_LEFT) and (direction != RIGHT):
                 direction = LEFT
-            if event.key == K_RIGHT:
+            if (event.key == K_RIGHT) and (direction != LEFT):
                 direction = RIGHT
         return direction
     

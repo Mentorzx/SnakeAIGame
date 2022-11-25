@@ -1,8 +1,15 @@
 import pygame
 import random
 from pygame.locals import KEYDOWN, K_UP, K_DOWN, K_LEFT, K_RIGHT, QUIT
+<<<<<<< HEAD
 from players.AiPlayer import AiPlayer
+=======
+<<<<<<< HEAD
+>>>>>>> main
 
+=======
+import ctypes
+>>>>>>> 4a8edc4ec2af367ed02eb4c5e94e5fe24891ce53
 
 UP = 0
 RIGHT = 1
@@ -17,19 +24,48 @@ def on_grid_random() -> tuple[int, int]:
 
 
 def collision(object1: list[int], object2: list[int]) -> bool:
-    return (object1[0] == object2[0]) and (object1[1] == object2[1])
+    if (len(object1) <= 2) and (len(object2) <= 2):
+        if (object1[0] in object2) and (object1[1] in object2):
+            return True
+    elif object1 in object2 or object1 in object2[::-1]:
+        return True
+    return False
 
 
-def constructs() -> tuple:
+def constructs(display_range: int) -> tuple:
     snake = [(200, 200), (210, 200), (220, 200)]
     snake_skin = pygame.Surface((10, 10))
     snake_skin.fill((255, 255, 255))
     apple_pos = on_grid_random()
     apple = pygame.Surface((10, 10))
     apple.fill((255, 0, 0))
-    return snake, snake_skin, apple, apple_pos
+    border1, border2, border3, border4 = [], [], [], []
+    for i in range(display_range-9):
+        border_init = (0, i)
+        border_end = (display_range - 10, i)
+        border1.append(border_init)
+        border2.append(border_init[::-1])
+        border3.append(border_end)
+        border4.append(border_end[::-1])
+    return snake, snake_skin, apple, apple_pos, border1, border2, border3, border4
 
 
+<<<<<<< HEAD
+=======
+def control_AI(event, direction: int) -> int:
+    if event.type == KEYDOWN:
+        if (event.key == K_UP) and (direction != DOWN):
+            direction = UP
+        if (event.key == K_DOWN) and (direction != UP):
+            direction = DOWN
+        if (event.key == K_LEFT) and (direction != RIGHT):
+            direction = LEFT
+        if (event.key == K_RIGHT) and (direction != LEFT):
+            direction = RIGHT
+    return direction
+
+
+>>>>>>> main
 def motor_snake(direction: int, snake: list) -> list:
     if direction == UP:
         snake[0] = (snake[0][0], snake[0][1] - 10)
@@ -46,7 +82,8 @@ def program(name: str, display_range: int, time_game_fps: int):
     pygame.init()
     screen = pygame.display.set_mode((display_range, display_range))
     pygame.display.set_caption(name)
-    snake, snake_skin, apple, apple_pos = constructs()
+    snake, snake_skin, apple, apple_pos, border1, border2, border3, border4 = constructs(
+        display_range)
     clock = pygame.time.Clock()
     snake_direction = LEFT
 
@@ -57,10 +94,19 @@ def program(name: str, display_range: int, time_game_fps: int):
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
+<<<<<<< HEAD
         
         snake_direction = player1.control(snake_direction, snake, apple_pos)
         
         if collision(snake[0], apple_pos):
+=======
+            snake_direction = control_AI(event, snake_direction)
+        if collision(snake[0], snake[1:]) or collision(snake[0], border1) or collision(snake[0], border2) or collision(snake[0], border3) or collision(snake[0], border4):
+            MessageBox = ctypes.windll.user32.MessageBoxW
+            if MessageBox(None, 'You lose', 'Game Over', 0):
+                pygame.quit()
+        if collision(snake[0], apple_pos):  # type: ignore
+>>>>>>> main
             apple_pos = on_grid_random()
             snake.append((0, 0))
         for i in range(len(snake) - 1, 0, -1):
@@ -75,7 +121,7 @@ def program(name: str, display_range: int, time_game_fps: int):
 
 if __name__ == '__main__':
     name = 'Snake AI'
-    time_game_fps = 60
+    time_game = 10
     display_range = 600
 
-    program(name, display_range, time_game_fps)
+    program(name, display_range, time_game)

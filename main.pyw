@@ -1,11 +1,8 @@
-import pygame
+import sys
 import random
-from pygame.locals import KEYDOWN, K_UP, K_DOWN, K_LEFT, K_RIGHT, QUIT
-<<<<<<< HEAD
-
-=======
 import ctypes
->>>>>>> 4a8edc4ec2af367ed02eb4c5e94e5fe24891ce53
+import pygame
+from pygame.locals import KEYDOWN, K_UP, K_DOWN, K_LEFT, K_RIGHT, QUIT
 
 UP = 0
 RIGHT = 1
@@ -13,17 +10,14 @@ DOWN = 2
 LEFT = 3
 
 
-def on_grid_random() -> tuple[int, int]:
-    x = random.randint(0, 590)
-    y = random.randint(0, 590)
+def on_grid_random(display_range) -> tuple[int, int]:
+    x = random.randint(0, display_range-10)
+    y = random.randint(0, display_range-10)
     return (x//10 * 10, y//10 * 10)
 
 
-def collision(object1: list[int], object2: list[int]) -> bool:
-    if (len(object1) <= 2) and (len(object2) <= 2):
-        if (object1[0] in object2) and (object1[1] in object2):
-            return True
-    elif object1 in object2 or object1 in object2[::-1]:
+def collision(object1: list[int], object2: tuple) -> bool:
+    if object1 in object2:
         return True
     return False
 
@@ -32,7 +26,7 @@ def constructs(display_range: int) -> tuple:
     snake = [(200, 200), (210, 200), (220, 200)]
     snake_skin = pygame.Surface((10, 10))
     snake_skin.fill((255, 255, 255))
-    apple_pos = on_grid_random()
+    apple_pos = on_grid_random(display_range)
     apple = pygame.Surface((10, 10))
     apple.fill((255, 0, 0))
     border1, border2, border3, border4 = [], [], [], []
@@ -46,7 +40,7 @@ def constructs(display_range: int) -> tuple:
     return snake, snake_skin, apple, apple_pos, border1, border2, border3, border4
 
 
-def control_AI(event, direction: int) -> int:
+def control_AI(event, direction: int) -> int:  # Manipulate to AI
     if event.type == KEYDOWN:
         if (event.key == K_UP) and (direction != DOWN):
             direction = UP
@@ -71,6 +65,14 @@ def motor_snake(direction: int, snake: list) -> list:
     return snake
 
 
+def display_score(screen, score):
+    pygame.font.init()
+    font = pygame.font.SysFont('arial', 30)
+    text = font.render(str(score), True, (255, 255, 255))
+    screen.blit(text, (10, 10))
+    pygame.display.flip()
+
+
 def program(name: str, display_range: int, time_game_fps: int):
     pygame.init()
     screen = pygame.display.set_mode((display_range, display_range))
@@ -79,18 +81,25 @@ def program(name: str, display_range: int, time_game_fps: int):
         display_range)
     clock = pygame.time.Clock()
     snake_direction = LEFT
+    score = 0
     while True:
+        display_score(screen, score)
         clock.tick(time_game_fps)
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
+                sys.exit()
             snake_direction = control_AI(event, snake_direction)
-        if collision(snake[0], snake[1:]) or collision(snake[0], border1) or collision(snake[0], border2) or collision(snake[0], border3) or collision(snake[0], border4):
+        if collision(snake[0], tuple(snake[1:])) or collision(snake[0], border1) or collision(snake[0], border2) or collision(snake[0], border3) or collision(snake[0], border4):
             MessageBox = ctypes.windll.user32.MessageBoxW
-            if MessageBox(None, 'You lose', 'Game Over', 0):
+            if MessageBox(None, 'You lose', 'Game Over', 5) == 2:
                 pygame.quit()
-        if collision(snake[0], apple_pos):  # type: ignore
-            apple_pos = on_grid_random()
+                sys.exit()
+            else:
+                program(name, display_range, time_game)  # Manipulate to AI
+        if collision(snake[0], tuple([apple_pos])):
+            apple_pos = on_grid_random(display_range)
+            score += 1  # Manipulate to AI
             snake.append((0, 0))
         for i in range(len(snake) - 1, 0, -1):
             snake[i] = (snake[i-1][0], snake[i-1][1])
@@ -105,6 +114,6 @@ def program(name: str, display_range: int, time_game_fps: int):
 if __name__ == '__main__':
     name = 'Snake AI'
     time_game = 10
-    display_range = 600
+    display_range = 450
 
     program(name, display_range, time_game)

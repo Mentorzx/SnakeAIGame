@@ -19,7 +19,7 @@ def collision(object1: list[int], object2: list[int]) -> bool:
     if (len(object1) <= 2) and (len(object2) <= 2):
         if (object1[0] in object2) and (object1[1] in object2):
             return True
-    elif object1 in object2 or object1 in object2[::-1]:
+    elif object1 in object2:
         return True
     return False
 
@@ -93,8 +93,11 @@ def program(name: str, display_range: int, time_game_fps: int):
             snake_direction = control_AI(event, snake_direction)
         if collision(snake[0], snake[1:]) or collision(snake[0], border1) or collision(snake[0], border2) or collision(snake[0], border3) or collision(snake[0], border4):
             MessageBox = ctypes.windll.user32.MessageBoxW
-            if MessageBox(None, 'You lose', 'Game Over', 0):
+            if MessageBox(None, 'You lose', 'Game Over', 5) == 2:
                 pygame.quit()
+            else:
+                pygame.quit()
+                program(name, display_range, time_game)
         if collision(snake[0], apple_pos):  # type: ignore
             apple_pos = on_grid_random()
             score += 1

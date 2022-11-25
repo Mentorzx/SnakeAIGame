@@ -1,6 +1,7 @@
 import pygame
 import random
 from pygame.locals import KEYDOWN, K_UP, K_DOWN, K_LEFT, K_RIGHT, QUIT
+from players.AiPlayer import AiPlayer
 
 
 UP = 0
@@ -29,87 +30,6 @@ def constructs() -> tuple:
     return snake, snake_skin, apple, apple_pos
 
 
-def control(event, direction: int) -> int:
-    if event.type == KEYDOWN:
-        if event.key == K_UP:
-            direction = UP
-        if event.key == K_DOWN:
-            direction = DOWN
-        if event.key == K_LEFT:
-            direction = LEFT
-        if event.key == K_RIGHT:
-            direction = RIGHT
-    return direction
-
-
-def redirect(input: int, direction: int) -> int:
-    if direction == UP:
-        if input == 0:
-            return LEFT 
-        if input == 1:
-            return direction
-        if input == 2:
-            return RIGHT 
-    if direction == DOWN:
-        if input == 0:
-            return RIGHT 
-        if input == 1:
-            return direction
-        if input == 2:
-            return LEFT 
-    if direction == LEFT:
-        if input == 0:
-            return DOWN 
-        if input == 1:
-            return direction
-        if input == 2:
-            return UP 
-    if direction == RIGHT:
-        if input == 0:
-            return UP 
-        if input == 1:
-            return direction
-        if input == 2:
-            return DOWN 
-
-def find_possible_collision(object1):
-    
-    if object1[0]-10 < 0:
-        return LEFT
-    if object1[0]+10 > 590:
-        return RIGHT   
-    if object1[1]-10 < 0: 
-        return UP
-    if object1[1]+10 > 590:
-        return DOWN
-    
-    return False
-
-
-
-def control_AI(direction: int, snake, apple_pos) -> int:
-    colli = find_possible_collision(snake[0])
-
-    if colli != False and colli == direction:
-        return redirect(2, direction)
-
-    if snake[0][0] != apple_pos[0]:
-        if snake[0][0] > apple_pos[0]:
-            return LEFT
-        if snake[0][0] < apple_pos[0]:
-            return RIGHT
-    if snake[0][1] != apple_pos[1]:
-        if snake[0][1] > apple_pos[1]:
-            return UP
-        if snake[0][1] < apple_pos[1]:
-            return DOWN
-    
-    return direction
-
-
-    return redirect(input, direction)
-
-
 def motor_snake(direction: int, snake: list) -> list:
     if direction == UP:
         snake[0] = (snake[0][0], snake[0][1] - 10)
@@ -129,13 +49,16 @@ def program(name: str, display_range: int, time_game_fps: int):
     snake, snake_skin, apple, apple_pos = constructs()
     clock = pygame.time.Clock()
     snake_direction = LEFT
+
+    player1 = AiPlayer()
+
     while True:
         clock.tick(time_game_fps)
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
         
-        snake_direction = control_AI(snake_direction, snake, apple_pos)
+        snake_direction = player1.control(snake_direction, snake, apple_pos)
         
         if collision(snake[0], apple_pos):
             apple_pos = on_grid_random()

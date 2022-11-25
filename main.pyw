@@ -96,7 +96,6 @@ def program(name: str, display_range: int, time_game_fps: int):
             if MessageBox(None, 'You lose', 'Game Over', 5) == 2:
                 pygame.quit()
             else:
-                pygame.quit()
                 program(name, display_range, time_game)
         if collision(snake[0], apple_pos):  # type: ignore
             apple_pos = on_grid_random(display_range)

@@ -1,15 +1,8 @@
 import pygame
 import random
 from pygame.locals import KEYDOWN, K_UP, K_DOWN, K_LEFT, K_RIGHT, QUIT
-<<<<<<< HEAD
 from players.AiPlayer import AiPlayer
-=======
-<<<<<<< HEAD
->>>>>>> main
-
-=======
 import ctypes
->>>>>>> 4a8edc4ec2af367ed02eb4c5e94e5fe24891ce53
 
 UP = 0
 RIGHT = 1
@@ -50,8 +43,6 @@ def constructs(display_range: int) -> tuple:
     return snake, snake_skin, apple, apple_pos, border1, border2, border3, border4
 
 
-<<<<<<< HEAD
-=======
 def control_AI(event, direction: int) -> int:
     if event.type == KEYDOWN:
         if (event.key == K_UP) and (direction != DOWN):
@@ -65,7 +56,6 @@ def control_AI(event, direction: int) -> int:
     return direction
 
 
->>>>>>> main
 def motor_snake(direction: int, snake: list) -> list:
     if direction == UP:
         snake[0] = (snake[0][0], snake[0][1] - 10)
@@ -94,19 +84,12 @@ def program(name: str, display_range: int, time_game_fps: int):
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
-<<<<<<< HEAD
-        
-        snake_direction = player1.control(snake_direction, snake, apple_pos)
-        
-        if collision(snake[0], apple_pos):
-=======
             snake_direction = control_AI(event, snake_direction)
         if collision(snake[0], snake[1:]) or collision(snake[0], border1) or collision(snake[0], border2) or collision(snake[0], border3) or collision(snake[0], border4):
             MessageBox = ctypes.windll.user32.MessageBoxW
             if MessageBox(None, 'You lose', 'Game Over', 0):
                 pygame.quit()
         if collision(snake[0], apple_pos):  # type: ignore
->>>>>>> main
             apple_pos = on_grid_random()
             snake.append((0, 0))
         for i in range(len(snake) - 1, 0, -1):

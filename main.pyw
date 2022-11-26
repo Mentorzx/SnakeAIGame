@@ -24,11 +24,6 @@ def collision(object1: list[int], object2: tuple) -> bool:
         return True
     return False
 
-def collision_wall(object: list[int], display_range):
-    if object[0] < 0 or object[0] > display_range or object[1] < 0 or object[1] > display_range:
-        return True
-    return False
-
 def constructs(display_range: int) -> tuple:
     snake = [(200, 200), (210, 200), (220, 200)]
     snake_skin = pygame.Surface((10, 10))
@@ -36,15 +31,15 @@ def constructs(display_range: int) -> tuple:
     apple_pos = on_grid_random(display_range)
     apple = pygame.Surface((10, 10))
     apple.fill((255, 0, 0))
-    border1, border2, border3, border4 = [], [], [], []
-    for i in range(display_range-9):
-        border_init = (0, i)
-        border_end = (display_range - 10, i)
-        border1.append(border_init)
-        border2.append(border_init[::-1])
-        border3.append(border_end)
-        border4.append(border_end[::-1])
-    return snake, snake_skin, apple, apple_pos, border1, border2, border3, border4
+    border = []
+    for i in range(display_range-7):
+        border_init = (-10, i)
+        border_end = (display_range, i)
+        border.append(border_init)
+        border.append(border_init[::-1])
+        border.append(border_end)
+        border.append(border_end[::-1])
+    return snake, snake_skin, apple, apple_pos, border
 
 
 def control(event, direction: int) -> int:  # Manipulate to AI
@@ -84,7 +79,7 @@ def program(name: str, display_range: int, time_game_fps: int):
     pygame.init()
     screen = pygame.display.set_mode((display_range, display_range))
     pygame.display.set_caption(name)
-    snake, snake_skin, apple, apple_pos, border1, border2, border3, border4 = constructs(
+    snake, snake_skin, apple, apple_pos, border = constructs(
         display_range)
     clock = pygame.time.Clock()
     snake_direction = LEFT
@@ -108,10 +103,10 @@ def program(name: str, display_range: int, time_game_fps: int):
                 sys.exit()
 
             # --- controle manual ---
-            #snake_direction = control(event, snake_direction)
+            snake_direction = control(event, snake_direction)
         
         # --- controle AI --- 
-        snake_direction = AI.control_AI(snake_direction, snake, apple_pos)
+        #snake_direction = AI.control_AI(snake_direction, snake, apple_pos)
 
         # coloquei o movimento antes da colisão para que a cobra não entre na parede,
         # pra que ela cresça no frame que come a maçâ
@@ -121,10 +116,8 @@ def program(name: str, display_range: int, time_game_fps: int):
             snake[i] = (snake[i-1][0], snake[i-1][1])
         snake = motor_snake(snake_direction, snake)  # type: ignore
 
-        # troquei o metodo de colisão pois tava batendo assim que encostava na parede sem dar a chance de redirecionar
         # --- colisões ---
-        #if collision(snake[0], tuple(snake[1:])) or collision(snake[0], border1) or collision(snake[0], border2) or collision(snake[0], border3) or collision(snake[0], border4):
-        if collision_wall(snake[0], display_range) or collision(snake[0], tuple(snake[1:])):
+        if collision(snake[0], tuple(snake[1:])) or collision(snake[0], border):
             MessageBox = ctypes.windll.user32.MessageBoxW
             if MessageBox(None, 'You lose', 'Game Over', 5) == 2:
                 pygame.quit()
@@ -149,7 +142,7 @@ def program(name: str, display_range: int, time_game_fps: int):
 
 if __name__ == '__main__':
     name = 'Snake AI'
-    time_game = 60
+    time_game = 10
     display_range = 450
 
     program(name, display_range, time_game)

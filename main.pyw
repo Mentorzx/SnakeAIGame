@@ -24,6 +24,7 @@ def collision(object1: list[int], object2: tuple) -> bool:
         return True
     return False
 
+
 def constructs(display_range: int) -> tuple:
     snake = [(200, 200), (210, 200), (220, 200)]
     snake_skin = pygame.Surface((10, 10))
@@ -35,10 +36,8 @@ def constructs(display_range: int) -> tuple:
     for i in range(display_range-7):
         border_init = (-10, i)
         border_end = (display_range, i)
-        border.append(border_init)
-        border.append(border_init[::-1])
-        border.append(border_end)
-        border.append(border_end[::-1])
+        border.extend([border_init, border_init[::-1],
+                      border_end, border_end[::-1]])
     return snake, snake_skin, apple, apple_pos, border
 
 
@@ -104,8 +103,8 @@ def program(name: str, display_range: int, time_game_fps: int):
 
             # --- controle manual ---
             snake_direction = control(event, snake_direction)
-        
-        # --- controle AI --- 
+
+        # --- controle AI ---
         #snake_direction = AI.control_AI(snake_direction, snake, apple_pos)
 
         # coloquei o movimento antes da colisão para que a cobra não entre na parede,

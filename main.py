@@ -4,6 +4,7 @@ import ctypes
 import pygame
 from pygame.locals import KEYDOWN, K_UP, K_DOWN, K_LEFT, K_RIGHT, QUIT
 from players.AiPlayer import AiPlayer
+import players.a_star
 import time
 
 
@@ -19,7 +20,7 @@ def on_grid_random(display_range) -> tuple[int, int]:
     return (x//10 * 10, y//10 * 10)
 
 
-def collision(object1: list[int], object2: tuple) -> bool:
+def collision(object1: tuple, object2: tuple) -> bool:
     if object1 in object2:
         return True
     return False
@@ -41,16 +42,15 @@ def constructs(display_range: int) -> tuple:
     return snake, snake_skin, apple, apple_pos, border
 
 
-def control(event, direction: int) -> int:  # Manipulate to AI
-    if event.type == KEYDOWN:
-        if (event.key == K_UP) and (direction != DOWN):
-            direction = UP
-        if (event.key == K_DOWN) and (direction != UP):
-            direction = DOWN
-        if (event.key == K_LEFT) and (direction != RIGHT):
-            direction = LEFT
-        if (event.key == K_RIGHT) and (direction != LEFT):
-            direction = RIGHT
+def control(event: int, direction: int) -> int:  # Manipulate to AI
+    if (event == K_UP) and (direction != DOWN):
+        direction = UP
+    if (event == K_DOWN) and (direction != UP):
+        direction = DOWN
+    if (event == K_LEFT) and (direction != RIGHT):
+        direction = LEFT
+    if (event == K_RIGHT) and (direction != LEFT):
+        direction = RIGHT
     return direction
 
 
@@ -83,30 +83,27 @@ def program(name: str, display_range: int, time_game_fps: int):
     clock = pygame.time.Clock()
     snake_direction = LEFT
     score = 0
-
     AI = AiPlayer()
-
+    astar = players.a_star.AStar()
     while True:
         # --- mostra a pontuação na tela ---
         display_score(screen, score)
-
         # --- refresh rate ---
         clock.tick(time_game_fps)
         # time.sleep(1)
-
+        # --- controle AI ---
+        eventAI = astar.getKey(apple_pos, snake, snake_direction, border)
+        snake_direction = control(eventAI, snake_direction)
+        #snake_direction = AI.control_AI(snake_direction, snake, apple_pos)
         # --- inputs do teclado ---
         for event in pygame.event.get():
             # procura por comandos de saida do jogo
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
-
             # --- controle manual ---
-            snake_direction = control(event, snake_direction)
-
-        # --- controle AI ---
-        #snake_direction = AI.control_AI(snake_direction, snake, apple_pos)
-
+            if event.type == KEYDOWN:
+                snake_direction = control(event.key, snake_direction)
         # coloquei o movimento antes da colisão para que a cobra não entre na parede,
         # pra que ela cresça no frame que come a maçâ
         # é importante que ela coma a maça imediatamente pra que a próxima maça sejá criada e sirva de guia para a cobra
@@ -114,7 +111,6 @@ def program(name: str, display_range: int, time_game_fps: int):
         for i in range(len(snake) - 1, 0, -1):
             snake[i] = (snake[i-1][0], snake[i-1][1])
         snake = motor_snake(snake_direction, snake)  # type: ignore
-
         # --- colisões ---
         if collision(snake[0], tuple(snake[1:])) or collision(snake[0], border):
             MessageBox = ctypes.windll.user32.MessageBoxW
@@ -123,16 +119,13 @@ def program(name: str, display_range: int, time_game_fps: int):
                 sys.exit()
             else:
                 program(name, display_range, time_game)  # Manipulate to AI
-
         # --- maçã ---
         if collision(snake[0], tuple([apple_pos])):
             apple_pos = on_grid_random(display_range)
             score += 1  # Manipulate to AI
             snake.append((0, 0))
-
         screen.fill((0, 0, 0))
         screen.blit(apple, apple_pos)
-
         for pos in snake:
             screen.blit(snake_skin, pos)
 
@@ -141,7 +134,7 @@ def program(name: str, display_range: int, time_game_fps: int):
 
 if __name__ == '__main__':
     name = 'Snake AI'
-    time_game = 10
+    time_game = 100
     display_range = 450
 
     program(name, display_range, time_game)

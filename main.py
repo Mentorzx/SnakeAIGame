@@ -134,7 +134,7 @@ def program(name: str, display_range: int, time_game_fps: int):
 
 if __name__ == '__main__':
     name = 'Snake AI'
-    time_game = 100
+    time_game = 50
     display_range = 450
 
     program(name, display_range, time_game)

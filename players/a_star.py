@@ -57,9 +57,6 @@ class AStar:
 
     def getKey(self, apple: tuple, snake: list, snake_direction: int, objects: tuple) -> int:
         """ Returns the next step """
-        if snake[0][0] == apple[0] and snake[0][1]:
-            self.moves = 0
-            return snake_direction
         distances = self.getDistances(apple, snake[0], snake, objects)
         if distances.qsize() == 0:
             return snake_direction

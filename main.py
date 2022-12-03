@@ -2,14 +2,15 @@ import sys
 import random
 import ctypes
 import pygame
+import monte_carlo as monte_carlo
 from pygame.locals import KEYDOWN, K_UP, K_DOWN, K_LEFT, K_RIGHT, QUIT
-from players.AiPlayer import AiPlayer
 import time
 
 
 UP = 0
 RIGHT = 1
 DOWN = 2
+
 LEFT = 3
 
 
@@ -19,14 +20,14 @@ def on_grid_random(display_range) -> tuple[int, int]:
     return (x//10 * 10, y//10 * 10)
 
 
-def collision(object1: list[int], object2: tuple) -> bool:
+def collision(object1: tuple, object2: tuple) -> bool:
     if object1 in object2:
         return True
     return False
 
 
 def constructs(display_range: int) -> tuple:
-    snake = [(200, 200), (210, 200), (220, 200)]
+    snake = [(100, 100), (110, 100), (120, 100)]
     snake_skin = pygame.Surface((10, 10))
     snake_skin.fill((255, 255, 255))
     apple_pos = on_grid_random(display_range)
@@ -74,7 +75,7 @@ def display_score(screen, score):
     pygame.display.flip()
 
 
-def program(name: str, display_range: int, time_game_fps: int):
+def program(name: str, display_range: int, time_game_fps: int, player_control):
     pygame.init()
     screen = pygame.display.set_mode((display_range, display_range))
     pygame.display.set_caption(name)
@@ -83,8 +84,6 @@ def program(name: str, display_range: int, time_game_fps: int):
     clock = pygame.time.Clock()
     snake_direction = LEFT
     score = 0
-
-    AI = AiPlayer()
 
     while True:
         # --- mostra a pontuação na tela ---
@@ -102,10 +101,10 @@ def program(name: str, display_range: int, time_game_fps: int):
                 sys.exit()
 
             # --- controle manual ---
-            snake_direction = control(event, snake_direction)
+            # snake_direction = control(event, snake_direction)
 
         # --- controle AI ---
-        #snake_direction = AI.control_AI(snake_direction, snake, apple_pos)
+        snake_direction = player_control(display_range, snake, apple_pos, border, snake_direction)
 
         # coloquei o movimento antes da colisão para que a cobra não entre na parede,
         # pra que ela cresça no frame que come a maçâ
@@ -122,7 +121,7 @@ def program(name: str, display_range: int, time_game_fps: int):
                 pygame.quit()
                 sys.exit()
             else:
-                program(name, display_range, time_game)  # Manipulate to AI
+                program(name, display_range, time_game, player_control)  # Manipulate to AI
 
         # --- maçã ---
         if collision(snake[0], tuple([apple_pos])):
@@ -142,6 +141,6 @@ def program(name: str, display_range: int, time_game_fps: int):
 if __name__ == '__main__':
     name = 'Snake AI'
     time_game = 10
-    display_range = 450
+    display_range = 200
 
-    program(name, display_range, time_game)
+    program(name, display_range, time_game, monte_carlo.control)

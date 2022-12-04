@@ -1,5 +1,4 @@
-from pygame.locals import KEYDOWN, K_UP, K_DOWN, K_LEFT, K_RIGHT, QUIT
-import pygame
+from pygame.locals import KEYDOWN, K_UP, K_DOWN, K_LEFT, K_RIGHT
 
 UP = 0
 RIGHT = 1
@@ -47,17 +46,3 @@ def redirect(input, direction):
             return direction
         if input == 2:
             return DOWN 
-        
-def find_possible_collision(object1: list):
-
-    if object1[0]-10 < 0:
-        return LEFT
-    if object1[0]+10 > 590:
-        return RIGHT   
-    if object1[1]-10 < 0: 
-        return UP
-    if object1[1]+10 > 590:
-        return DOWN
-        
-    
-    return False

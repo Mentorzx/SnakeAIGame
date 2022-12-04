@@ -61,6 +61,19 @@ def motor_snake(direction: int, snake: list) -> list:
     return snake
 
 
+def display_score(screen, score):
+    pygame.font.init()
+    font = pygame.font.SysFont('arial', 30)
+    text = font.render(str(score), True, (255, 255, 255))
+    screen.blit(text, (10, 10))
+    pygame.display.flip()
+
+
+def lose(pos: tuple, snake, border) -> bool:
+    return collision(pos, tuple(snake[1:])) or collision(pos, border)
+
+
+
 
 
 

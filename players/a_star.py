@@ -1,6 +1,7 @@
 from queue import PriorityQueue
 from pygame.locals import KEYDOWN, K_UP, K_DOWN, K_LEFT, K_RIGHT
-from main import collision
+from game import collision
+from random import randrange
 
 
 class AStar:
@@ -27,9 +28,13 @@ class AStar:
 
     def getDistances(self, goal: tuple, current: list, snake: list, objects: tuple):
         """ Finding distance for each path """
-        distances = PriorityQueue()
+        # distances = PriorityQueue()
+        distances = []
         self.moves += 1
-        for path in self.paths:
+
+        possible_moves = self.getPossibleMoves(snake[0])
+
+        for path in possible_moves:
             x = None
             y = None
             goal_x = goal[0]
@@ -52,12 +57,41 @@ class AStar:
             hn = abs(x - goal_x) + abs(y - goal_y)
             fn = gn + hn
             # add to queue
-            distances.put((fn, path))
+            # distances.put((fn, path))
+            distances.append((fn, path))
         return distances
 
     def getKey(self, apple: tuple, snake: list, snake_direction: int, objects: tuple) -> int:
         """ Returns the next step """
         distances = self.getDistances(apple, snake[0], snake, objects)
-        if distances.qsize() == 0:
+        # if distances.qsize() == 0:
+        if len(distances) == 0:
             return snake_direction
+
+        index = 0
+        if len(distances) == 2:
+            if distances[0][0] == distances[1][0]:
+                index = randrange(len(distances))
+            elif distances[0][0] < distances[1][0]: 
+                index = 0
+            else:
+                index = 1
+        return distances[index][1]
+
         return distances.get()[1]
+
+
+    def getPossibleMoves(self, current: tuple):
+        possible_moves= []
+
+        if (current[0]/10)%2 == 0:
+            possible_moves.append(K_UP)
+        if (current[0]/10)%2 == 1:
+            possible_moves.append(K_DOWN)
+        if (current[1]/10)%2 == 0:
+            possible_moves.append(K_RIGHT)
+        if (current[1]/10)%2 == 1:
+            possible_moves.append(K_LEFT)
+        
+        return possible_moves
+

@@ -1,11 +1,10 @@
-import players.Player as player
-import copy
-import random
+from random import randrange
+from threading import Lock
+from copy import deepcopy
+from concurrent.futures import ThreadPoolExecutor
+from pygame import surface
 from pygame.locals import KEYDOWN, K_UP, K_DOWN, K_LEFT, K_RIGHT
 from game import collision, motor_snake, on_grid_random, lose
-
-import concurrent.futures
-import threading
 
 UP = 0
 RIGHT = 1
@@ -13,10 +12,10 @@ DOWN = 2
 LEFT = 3
 INVALIDE_DIRECTION = 5
 
+
 class MonteCarlo ():
     def __init__(self):
-        self.lock = threading.Lock()
-
+        self.lock = Lock()
         self.paths = [
             RIGHT,
             LEFT,
@@ -24,15 +23,17 @@ class MonteCarlo ():
             DOWN
         ]
 
-
-    def control(self, display_range, snake, apple_pos, border, snake_direction: int) -> int:  # Manipulate to AI
+    # Manipulate to AI
+    def control(self, display_range: int, snake: list[list[int]], apple_pos: surface.Surface, border, snake_direction: int) -> int:
         score_map = [(0, 0), (0, 0), (0, 0), (0, 0)]
-        parans = [display_range, snake, apple_pos, border, snake_direction, score_map]
+        parans = [display_range, snake, apple_pos,
+                  border, snake_direction, score_map]
 
         # --- chamados dos bots ---
-        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        with ThreadPoolExecutor(max_workers=10) as executor:
             for index in range(1000):
-                executor.submit(self.thread_program, display_range, snake, apple_pos, border, snake_direction, score_map, index)
+                executor.submit(self.thread_program, display_range, snake,
+                                apple_pos, border, snake_direction, score_map, index)
 
         # --- decisão de direção ---
         highest_score = -99999999
@@ -50,23 +51,23 @@ class MonteCarlo ():
             if i[1] == highest_score:
                 pool.append(i[0])
 
-        rand_idx = random.randrange(len(pool))
+        rand_idx = randrange(len(pool))
         return pool[rand_idx]
-        
-                
-    def thread_program (self, display_range: int, snake, apple_pos, border, snake_direction, score_map, index):
-        first, score = self.program(display_range, snake, apple_pos, border, snake_direction)
+
+    def thread_program(self, display_range: int, snake, apple_pos, border, snake_direction, score_map, index):
+        first, score = self.program(
+            display_range, snake, apple_pos, border, snake_direction)
         with self.lock:
-            score_map[first] = score_map[first][0] + 1, score_map[first][1] + score
+            score_map[first] = score_map[first][0] + \
+                1, score_map[first][1] + score
 
-
-    def control_AI(self, direction, snake, object):
+    def control_AI(self, direction: int, snake: tuple[list[int]], object: tuple[list[int]]):
         # pega a posição da cabeça
         current = snake[0]
 
         # lista de movimentos possiveis
         move_list = [UP, DOWN, RIGHT, LEFT]
-        
+
         # confere se esse movimento vai bater
         for move in move_list:
             x = None
@@ -83,23 +84,22 @@ class MonteCarlo ():
             elif move is LEFT:
                 x = current[0] - 10
                 y = current[1]
-            if lose((x, y), snake, object):
+            if (x is not None) and (y is not None) and lose([x, y], snake, object):
                 move_list.remove(move)
                 continue
-                
+
         # se nao tiver movimentos so continua em frente
         if not move_list:
             return direction
-        
-        # direção aleatoria dentre as diponiveis
-        rand_idx = random.randrange(len(move_list))
-        return move_list[rand_idx]
-        
 
-    def program(self, display_range: int, snake, apple_pos, border, snake_direction) -> tuple:
-        snake_bot = copy.deepcopy(snake)
-        snake_bot_direction = copy.deepcopy(snake_direction)
-        apple_bot_pos = copy.deepcopy(apple_pos)
+        # direção aleatoria dentre as diponiveis
+        rand_idx = randrange(len(move_list))
+        return move_list[rand_idx]
+
+    def program(self, display_range: int, snake: tuple[list[int]], apple_pos: tuple[int, int], border: tuple[list[int]], snake_direction: int) -> tuple:
+        snake_bot = list(deepcopy(snake))
+        snake_bot_direction = deepcopy(snake_direction)
+        apple_bot_pos = deepcopy(apple_pos)
         energy = (display_range/10) * 2
         apple_count = 0
         valor_step = 0
@@ -107,7 +107,8 @@ class MonteCarlo ():
         first_move = None
         while True:
             # --- controle AI ---
-            snake_bot_direction = self.control_AI(snake_bot_direction, snake, border)
+            snake_bot_direction = self.control_AI(
+                snake_bot_direction, snake, border)
 
             # guarda o primeiro movimento para a decisão final
             if first_move is None:
@@ -115,11 +116,12 @@ class MonteCarlo ():
 
             # --- movimento da cobra ---
             for i in range(len(snake_bot) - 1, 0, -1):
-                snake_bot[i] = (snake_bot[i-1][0], snake_bot[i-1][1])
-            snake_bot = motor_snake(snake_bot_direction, snake_bot)  # type: ignore
+                snake_bot[i] = [snake_bot[i-1][0], snake_bot[i-1][1]]
+            snake_bot = motor_snake(
+                snake_bot_direction, snake_bot)  # type: ignore
 
             # --- maçã ---
-            if collision(snake_bot[0], tuple([apple_bot_pos])):
+            if collision(snake_bot[0], apple_bot_pos):
                 apple_bot_pos = on_grid_random(display_range)
                 apple_count += 1  # Manipulate to AI
                 snake_bot.append((0, 0))
@@ -131,6 +133,6 @@ class MonteCarlo ():
             # --- colisões ---
             if lose(snake[0], snake, border):
                 return first_move, apple_count
-            
+
             if energy < 0:
                 return first_move, apple_count

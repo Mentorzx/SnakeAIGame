@@ -12,7 +12,6 @@ RIGHT = 1
 DOWN = 2
 LEFT = 3
 
-
 def program(name: str, display_range: int, time_game_fps: int):
     pygame.init()
     screen = pygame.display.set_mode((display_range, display_range))
@@ -24,6 +23,7 @@ def program(name: str, display_range: int, time_game_fps: int):
     score = 0
     astar = players.a_star.AStar()
     monteCarlo = players.monte_carlo.MonteCarlo()
+    save_number = None
     while True:
         # --- mostra a pontuação na tela ---
         game.display_score(screen, score)
@@ -31,39 +31,30 @@ def program(name: str, display_range: int, time_game_fps: int):
         # --- refresh rate ---
         clock.tick(time_game_fps)
 
+        # --- maçã ---
+        apple_pos, score = game.takeApple(snake, apple_pos, display_range, score)
+            
+        # --- controle AI ---
+        eventAI = astar.getKey(apple_pos, snake, snake_direction, border)
+        snake_direction = game.control(eventAI, snake_direction)
+        #snake_direction = monteCarlo.control(display_range, snake, apple_pos, border, snake_direction)
+        #save_number = game.save_move_file(save_number, snake_direction, apple_pos)
+
+        # --- inputs do teclado ---
+        game.inputTeclado(snake_direction)
+
         # --- movimento da cobra ---
-        for i in range(len(snake) - 1, 0, -1):
-            snake[i] = (snake[i-1][0], snake[i-1][1])
-        snake = game.motor_snake(snake_direction, snake) 
+        game.snakeMoviment(snake, snake_direction)
 
         # --- colisões ---
-        if game.collision(snake[0], tuple(snake[1:])) or game.collision(snake[0], border):
+        if game.lose(snake[0], snake, border):
+            game.save_death(save_number)
             MessageBox = ctypes.windll.user32.MessageBoxW
             if MessageBox(None, 'You lose', 'Game Over', 5) == 2:
                 pygame.quit()
                 sys.exit()
             else:
                 program(name, display_range, time_game_fps)  # Manipulate to AI
-
-        # --- maçã ---
-        if game.collision(snake[0], tuple([apple_pos])):
-            apple_pos = game.on_grid_random(display_range)
-            score += 1  # Manipulate to AI
-            snake.append((0, 0))
-            
-        # --- controle AI ---
-        #eventAI = astar.getKey(apple_pos, snake, snake_direction, border)
-        #snake_direction = game.control(eventAI, snake_direction)
-        snake_direction = monteCarlo.control(display_range, snake, apple_pos, border, snake_direction)
-
-        # --- inputs do teclado ---
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
-            # --- controle manual ---
-            if event.type == KEYDOWN:
-                snake_direction = game.control(event.key, snake_direction)
             
         screen.fill((0, 0, 0))
         screen.blit(apple, apple_pos)
@@ -75,6 +66,6 @@ def program(name: str, display_range: int, time_game_fps: int):
 if __name__ == '__main__':
     name = 'Snake AI'
     time_game = 100
-    display_range = 300
+    display_range = 200
 
     program(name, display_range, time_game)

@@ -1,7 +1,7 @@
-from queue import PriorityQueue
-from pygame.locals import KEYDOWN, K_UP, K_DOWN, K_LEFT, K_RIGHT
-from game import collision
 from random import randrange
+from pygame.locals import K_UP, K_DOWN, K_LEFT, K_RIGHT
+from game import lose
+from queue import PriorityQueue
 
 
 class AStar:
@@ -26,14 +26,12 @@ class AStar:
 
         self.moves = 0
 
-    def getDistances(self, goal: tuple, current: list, snake: list, objects: tuple):
+    def getDistances(self, goal: tuple[int, int], current: list, snake: tuple[list[int]], objects: tuple[list[int]]) -> list:
         """ Finding distance for each path """
         # distances = PriorityQueue()
         distances = []
         self.moves += 1
-
         possible_moves = self.getPossibleMoves(snake[0])
-
         for path in possible_moves:
             x = None
             y = None
@@ -51,47 +49,43 @@ class AStar:
             elif path is K_LEFT:
                 x = current[0] - 10
                 y = current[1]
-            if collision((x, y), tuple(snake)) or collision((x, y), objects):
-                continue
-            gn = self.moves
-            hn = abs(x - goal_x) + abs(y - goal_y)
-            fn = gn + hn
-            # add to queue
-            # distances.put((fn, path))
-            distances.append((fn, path))
+            if (x is not None) and (y is not None):
+                if lose([x, y], snake, objects):
+                    continue
+                gn = self.moves
+                hn = abs(x - goal_x) + abs(y - goal_y)
+                fn = gn + hn
+                # add to queue
+                # distances.put((fn, path))
+                distances.append((fn, path))
         return distances
 
-    def getKey(self, apple: tuple, snake: list, snake_direction: int, objects: tuple) -> int:
+    def getKey(self, apple: tuple[int, int], snake: tuple[list[int]], snake_direction: int, objects: tuple) -> int:
         """ Returns the next step """
         distances = self.getDistances(apple, snake[0], snake, objects)
         # if distances.qsize() == 0:
         if len(distances) == 0:
             return snake_direction
-
         index = 0
         if len(distances) == 2:
             if distances[0][0] == distances[1][0]:
                 index = randrange(len(distances))
-            elif distances[0][0] < distances[1][0]: 
+            elif distances[0][0] < distances[1][0]:
                 index = 0
             else:
                 index = 1
         return distances[index][1]
+       # return distances.get()[1]
 
-        return distances.get()[1]
-
-
-    def getPossibleMoves(self, current: tuple):
-        possible_moves= []
-
-        if (current[0]/10)%2 == 0:
+    def getPossibleMoves(self, current: list[int]) -> list[int]:
+        """ Return a possible moviment of the object based in the position """
+        possible_moves = []
+        if (current[0]/10) % 2 == 0:
             possible_moves.append(K_UP)
-        if (current[0]/10)%2 == 1:
+        if (current[0]/10) % 2 == 1:
             possible_moves.append(K_DOWN)
-        if (current[1]/10)%2 == 0:
+        if (current[1]/10) % 2 == 0:
             possible_moves.append(K_RIGHT)
-        if (current[1]/10)%2 == 1:
+        if (current[1]/10) % 2 == 1:
             possible_moves.append(K_LEFT)
-        
         return possible_moves
-

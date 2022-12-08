@@ -1,6 +1,6 @@
 from sys import exit
 from ctypes import windll
-from pygame import init, quit, display, time
+from pygame import init, quit, display, time, draw, Rect
 import game
 import players.a_star
 import players.monte_carlo
@@ -62,7 +62,10 @@ def program(name: str, display_range: int, time_game_fps: int):
 
         screen.fill((0, 0, 0))
         screen.blit(apple, apple_pos)
+
         for pos in snake:
+            snake_border = Rect(pos[0], pos[1], 10, 10)
+            draw.rect(snake_skin, (0, 150, 0), snake_border, 1)
             screen.blit(snake_skin, pos)
 
         game.display_info(screen, score, start_time)
@@ -75,7 +78,7 @@ def program(name: str, display_range: int, time_game_fps: int):
 
 if __name__ == '__main__':
     name = 'Snake AI'
-    time_game = 200
-    display_range = 200
+    time_game = 60
+    display_range = 300
 
     program(name, display_range, time_game)

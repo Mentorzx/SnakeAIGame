@@ -1,7 +1,7 @@
 from random import randrange
 from pygame.locals import K_UP, K_DOWN, K_LEFT, K_RIGHT
 from game import lose, getPossibleMoves
-from queue import PriorityQueue
+#from queue import PriorityQueue
 
 
 class AStar:
@@ -76,5 +76,3 @@ class AStar:
                 index = 1
         return distances[index][1]
        # return distances.get()[1]
-
-

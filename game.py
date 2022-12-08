@@ -12,8 +12,8 @@ LEFT = 3
 
 def on_grid_random(display_range: int) -> tuple[int, int]:
     """ Return a randomly position (int, int) to the apple """
-    x = randint(0, display_range-10)
-    y = randint(0, display_range-10)
+    x = randint(0, display_range - 10)
+    y = randint(0, display_range - 10)
     return (x//10 * 10, y//10 * 10)
 
 
@@ -36,7 +36,7 @@ def lose(pos: list[int], snake: tuple[list[int]], border: tuple[list[int]]) -> b
     return collision(tuple(pos), snake[1:]) or collision(tuple(pos), border)
 
 
-def win(snake: tuple[list[int]], display_range):
+def win(snake: tuple[list[int]], display_range: int) -> bool:
     len_display = (display_range//10)**2
     return len(snake) >= len_display
 
@@ -68,7 +68,7 @@ def motor_snake(direction: int, snake: tuple[list[int]]) -> tuple[list[int]]:
     return tuple(snake_list)
 
 
-def snakeMoviment(snake: tuple[list[int]], snake_direction: int, apple_pos: tuple[int, int], display_range: int, score: int) -> tuple[tuple[list[int]], tuple[int, int], list[list[int]], int]:
+def snakeMoviment(snake: tuple[list[int]], snake_direction: int, apple_pos: tuple[int, int], display_range: int, score: int) -> tuple[tuple[list[int]], tuple[int, int], int]:
     """ Realize the moviment of the snake and Return new random position for the apple and sum the score """
     snake_list = list(snake)
     snake = motor_snake(snake_direction, tuple(snake))
@@ -86,21 +86,36 @@ def snakeMoviment(snake: tuple[list[int]], snake_direction: int, apple_pos: tupl
     snake = tuple(snake_list)
 
     # --- cria nova maçã ---
-    # a nova maçã tem que ser criada depois de reposicionar para que ela surga em um espaço vazio
+    # a nova maçã tem que ser criada depois de reposicionar para que ela surja em um espaço vazio
     if gotApple:
         apple_pos = apple_pos if win(snake, display_range) else getNewApple(
             snake, apple_pos, display_range)
         score += 1
 
-    return snake, apple_pos, snake_list, score
+    return snake, apple_pos, score
+
+
+def display_time(screen: pygame.surface.Surface, start_time: int) -> None:
+    """ Displays time on the screen """
+    pygame.font.init()
+    font = pygame.font.SysFont('arial', 30)
+    counting_time = pygame.time.get_ticks() - start_time
+    counting_minutes = str(counting_time//60000).zfill(2)
+    counting_seconds = str((counting_time % 60000)//1000).zfill(2)
+    counting_millisecond = str(counting_time % 1000).zfill(3)
+    counting_string = "%s:%s:%s" % (
+        counting_minutes, counting_seconds, counting_millisecond)
+    text = font.render("Time --> " + str(counting_string),
+                       True, (0, 255, 255))
+    screen.blit(text, (10, 10))
+    pygame.display.flip()
 
 
 def display_score(screen: pygame.surface.Surface, score: int) -> None:
     """ Displays score on the screen """
-    pygame.font.init()
     font = pygame.font.SysFont('arial', 30)
-    text = font.render(str(score), True, (0, 255, 255))
-    screen.blit(text, (10, 10))
+    text = font.render("Score -> " + str(score), True, (0, 255, 255))
+    screen.blit(text, (10, 50))
     pygame.display.flip()
 
 

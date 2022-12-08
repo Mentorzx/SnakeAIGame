@@ -1,7 +1,6 @@
 import sys
 import pygame
 from random import randint
-from collections import Counter
 from pygame.locals import KEYDOWN, K_UP, K_DOWN, K_LEFT, K_RIGHT, QUIT
 
 
@@ -18,9 +17,8 @@ def on_grid_random(display_range: int) -> tuple[int, int]:
     return (x//10 * 10, y//10 * 10)
 
 
-def getNewApple(snake: tuple[list[int]], display_range: int) -> tuple[int, int]:
+def getNewApple(snake: tuple[list[int]], apple_pos: tuple[int, int], display_range: int) -> tuple[int, int]:
     """ Return a new position for an apple """
-    apple_pos = on_grid_random(display_range)
     while collision(apple_pos, snake):
         apple_pos = on_grid_random(display_range)
     return apple_pos
@@ -36,6 +34,11 @@ def lose(pos: list[int], snake: tuple[list[int]], border: tuple[list[int]]) -> b
     """ Return True if the snake has passed in one or more conditionals of lose
     Return False if the snake don't passed in any conditionals of lose """
     return collision(tuple(pos), snake[1:]) or collision(tuple(pos), border)
+
+
+def win(snake: tuple[list[int]], display_range):
+    len_display = (display_range//10)**2
+    return len(snake) >= len_display
 
 
 def control(event: int, direction: int) -> int:  # Manipulate to AI
@@ -65,7 +68,7 @@ def motor_snake(direction: int, snake: tuple[list[int]]) -> tuple[list[int]]:
     return tuple(snake_list)
 
 
-def snakeMoviment(snake: tuple[list[int]], snake_direction: int, apple_pos: tuple[int, int], display_range: int, score: int) -> tuple[tuple[list[int]], int, tuple[int, int], list[list[int]]]:
+def snakeMoviment(snake: tuple[list[int]], snake_direction: int, apple_pos: tuple[int, int], display_range: int, score: int) -> tuple[tuple[list[int]], tuple[int, int], list[list[int]], int]:
     """ Realize the moviment of the snake and Return new random position for the apple and sum the score """
     snake_list = list(snake)
     snake = motor_snake(snake_direction, tuple(snake))
@@ -85,10 +88,11 @@ def snakeMoviment(snake: tuple[list[int]], snake_direction: int, apple_pos: tupl
     # --- cria nova maçã ---
     # a nova maçã tem que ser criada depois de reposicionar para que ela surga em um espaço vazio
     if gotApple:
-        apple_pos = getNewApple(snake, display_range)
+        apple_pos = apple_pos if win(snake, display_range) else getNewApple(
+            snake, apple_pos, display_range)
         score += 1
 
-    return snake, score, apple_pos, snake_list
+    return snake, apple_pos, snake_list, score
 
 
 def display_score(screen: pygame.surface.Surface, score: int) -> None:

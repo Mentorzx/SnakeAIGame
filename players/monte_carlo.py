@@ -116,15 +116,16 @@ class MonteCarlo ():
 
             # --- movimento da cobra ---
             for i in range(len(snake_bot) - 1, 0, -1):
-                snake_bot[i] = [snake_bot[i-1][0], snake_bot[i-1][1]]
+                list(snake_bot)[i] = [snake_bot[i-1][0], snake_bot[i-1][1]]
             snake_bot = motor_snake(
-                snake_bot_direction, snake_bot)  # type: ignore
+                snake_bot_direction, tuple(snake_bot))
 
             # --- maçã ---
-            if collision(snake_bot[0], apple_bot_pos):
+            if collision(tuple(snake_bot[0]), apple_bot_pos):
                 apple_bot_pos = on_grid_random(display_range)
                 apple_count += 1  # Manipulate to AI
-                snake_bot.append((0, 0))
+                snake_bot = list(snake_bot).append([0, 0])
+                snake_bot = tuple(snake_bot)
 
                 energy = (display_range/10) * 2
             else:

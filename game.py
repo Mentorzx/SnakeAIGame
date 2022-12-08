@@ -12,26 +12,26 @@ LEFT = 3
 
 
 def on_grid_random(display_range: int) -> tuple[int, int]:
-    """ Return a randomly position int the display of something """
+    """ Return a randomly position (int, int) to the apple """
     x = randint(0, display_range-10)
     y = randint(0, display_range-10)
     return (x//10 * 10, y//10 * 10)
 
 
+def getNewApple(snake, display_range):
+    """ Return a new position for an apple """
+    count = int((display_range/10) ** 2)
+    apple_pos = None
+    for i in range(count):
+        apple_pos = on_grid_random(display_range)
+        if not collision(apple_pos, snake):
+            break
+    return apple_pos
+
 def collision(object1: tuple, object2: tuple) -> bool:
     """ Return True if have collision with 2 objects in somewhere
     Return False if don't have any collision of 2 objects """
     return (list(object1) in list(object2)) or (list(object1) == list(object2))
-
-
-def takeApple(snake: tuple[list[int]], apple_pos: tuple[int, int], display_range: int, score: int) -> tuple[int, tuple[int, int], tuple[list[int]]]:
-    """ Return new random position for the apple and sum the score """
-    snake_list = list(snake)
-    if collision(tuple(snake[0]), apple_pos):
-        apple_pos = on_grid_random(display_range)
-        snake_list.append([0, 0])
-        score += 1  # Manipulate to AI
-    return score, apple_pos, tuple(snake_list)
 
 
 def lose(pos: list[int], snake: tuple[list[int]], border: tuple[list[int]]) -> bool:
@@ -54,7 +54,7 @@ def control(event: int, direction: int) -> int:  # Manipulate to AI
 
 
 def motor_snake(direction: int, snake: tuple[list[int]]) -> tuple[list[int]]:
-    """ Return a new position for the snake based in your direction and actual position """
+    """ Return a new position for the snake head based in your direction and actual position """
     snake_list = list(snake)
     if direction == UP:
         snake_list[0] = [snake[0][0], snake[0][1] - 10]
@@ -67,13 +67,30 @@ def motor_snake(direction: int, snake: tuple[list[int]]) -> tuple[list[int]]:
     return tuple(snake_list)
 
 
-def snakeMoviment(snake: tuple[list[int]], snake_direction: int) -> tuple[list[int]]:
-    """ Realize the moviment of the snake """
+def snakeMoviment(snake: tuple[list[int]], snake_direction: int, apple_pos: tuple[int, int], display_range: int, score: int) -> tuple[tuple[list[int]], int, tuple[int, int], list[list[int]]]:
+    """ Realize the moviment of the snake and Return new random position for the apple and sum the score """
     snake_list = list(snake)
-    for i in range(len(snake) - 1, 0, -1):
-        snake_list[i] = [snake[i-1][0], snake[i-1][1]]
-    snake_tuple = motor_snake(snake_direction, tuple(snake_list))
-    return snake_tuple
+    snake = motor_snake(snake_direction, tuple(snake))
+
+    # --- se pegar maçã adiciona um gomo ---
+    # o gomo tem que ser criado antes de reposicionar para que o novo gomo já seja reposicionado
+    gotApple = collision(tuple(snake[0]), apple_pos)
+    if gotApple:
+        snake_list.append([0, 0])
+
+    # --- reposiciona  a cobra e o novo gomo se for o caso ---
+    for i in range(len(snake_list) - 1, 0, -1):
+        snake_list[i] = snake_list[i-1]
+    snake_list[0] = [snake[0][0], snake[0][1]]
+    snake = tuple(snake_list)
+
+    # --- cria nova maçã ---
+    # a nova maçã tem que ser criada depois de reposicionar para que ela surga em um espaço vazio
+    if gotApple:
+        apple_pos = getNewApple(snake, display_range)
+        score += 1 
+
+    return snake, score, apple_pos, snake_list
 
 
 def display_score(screen: pygame.surface.Surface, score: int) -> None:
@@ -113,8 +130,22 @@ def inputTeclado(snake_direction: int) -> None:
             snake_direction = control(event.key, snake_direction)
 
 
+def getPossibleMoves(current: list[int]) -> list[int]:
+    """ Return a possible moviment of the object based in the position """
+    possible_moves = []
+    if (current[0]/10) % 2 == 0:
+        possible_moves.append(K_DOWN)
+    if (current[0]/10) % 2 == 1:
+        possible_moves.append(K_UP)
+    if (current[1]/10) % 2 == 0:
+        possible_moves.append(K_LEFT)
+    if (current[1]/10) % 2 == 1:
+        possible_moves.append(K_RIGHT)
+    return possible_moves
+
+
 def read_move_file(save_number: str) -> str:
-    """ I don't know what this do """
+    """ Read the record file """
     with open('save.txt', 'r') as save_file:
         lines = save_file.readlines()
     line = 0
@@ -123,23 +154,18 @@ def read_move_file(save_number: str) -> str:
     return lines[line + 1]
 
 
-def save_move_file(save_number: str, move: int, apple_pos: tuple[int, int]) -> str:
-    """ I don't know what this do """
-    if not save_number:
-        with open('config.txt', 'r') as config_file:
-            save_number = config_file.readline().strip().split(' ')[1]
-        with open('config.txt', 'w') as config_file:
-            config_file.write(f'save_number: {int(save_number) + 1}')
-        with open('save.txt', 'a') as save_file:
-            save_file.write(f'Save: {save_number} \n')
-            save_file.write(f'({move}, {apple_pos}) ')
-    else:
-        with open('save.txt', 'a') as save_file:
-            save_file.write(f'({move}, {apple_pos}) ')
-    return save_number
+def record_move_file(record:list[tuple]):
+    """ Record all moves in a file so that it can be replayed later """
+    with open('config.txt', 'r') as config_file:
+        record_number = config_file.readline().strip().split(' ')[1]
+    with open('config.txt', 'w') as config_file:
+        config_file.write(f'save_number: {int(record_number) + 1}')
 
-
-def save_death() -> None:
-    """ I don't know what this do """
-    with open('save.txt', 'a') as save_file:
-        save_file.write('DEATH\n\n\n')
+    with open('save.txt', 'a') as record_file:
+            record_file.write(f'Save: {record_number} \n')
+            # record_file.write(f'Display_range: {display_range} \n')
+            # record_file.write(f'Start_position: {snake} \n')
+            # record_file.write(f'Start_direction: {direction} \n')
+            
+            record_file.write(f'{record}')
+            record_file.write(f'DEATH \n\n')

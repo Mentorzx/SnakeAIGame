@@ -11,6 +11,17 @@ DOWN = 2
 LEFT = 3
 
 
+def gameOver(snake, border, name, display_range, time_game_fps):
+    if game.lose(list(snake)[0], tuple(snake), border):
+        # game.record_move_file(record)
+        MessageBox = windll.user32.MessageBoxW
+        if MessageBox(None, 'You lose', 'Game Over', 5) == 2:
+            quit()
+            exit()
+        else:
+            program(name, display_range, time_game_fps)
+
+
 def program(name: str, display_range: int, time_game_fps: int):
     """ Main function of the game that execute and display the hole game """
     init()
@@ -22,29 +33,26 @@ def program(name: str, display_range: int, time_game_fps: int):
     snake_direction = LEFT
     score = 0
     astar = players.a_star.AStar()
-    # monteCarlo = players.monte_carlo.MonteCarlo()
-    # save_number = None
+    monteCarlo = players.monte_carlo.MonteCarlo()
+    record = []
     while True:
         game.display_score(screen, score)
         clock.tick(time_game_fps)  # refresh rate
-        score, apple_pos, snake = game.takeApple(
-            snake, apple_pos, display_range, score)
-        eventAI = astar.getKey(apple_pos, snake, snake_direction, border)
+
+        eventAI = astar.getKey(apple_pos, tuple(snake), snake_direction, border)
         snake_direction = game.control(eventAI, snake_direction)
-        #snake_direction = monteCarlo.control(display_range, snake, apple_pos, border, snake_direction)
-        #save_number = game.save_move_file(save_number, snake_direction, apple_pos)
+        # snake_direction = monteCarlo.control(display_range, snake, apple_pos, border, snake_direction)
         game.inputTeclado(snake_direction)
-        snake = game.snakeMoviment(snake, snake_direction)
-        if game.lose(list(snake)[0], snake, border):
-            game.save_death()
-            MessageBox = windll.user32.MessageBoxW
-            if MessageBox(None, 'You lose', 'Game Over', 5) == 2:
-                quit()
-                exit()
-            else:
-                program(name, display_range, time_game_fps)  # Manipulate to AI
+
+        snake, score, apple_pos, snake = game.snakeMoviment(tuple(snake), snake_direction, apple_pos, display_range, score)
+
+        record.append((snake_direction, apple_pos))
+
+        gameOver(snake, border, name, display_range, time_game_fps)
+        
         screen.fill((0, 0, 0))
         screen.blit(apple, apple_pos)
+        
         for pos in snake:
             screen.blit(snake_skin, pos)
         display.update()

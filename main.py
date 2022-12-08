@@ -11,17 +11,17 @@ DOWN = 2
 LEFT = 3
 
 
-def gameOver(snake: tuple[list[int]], border: tuple[list[int]], display_range: int, time_game_fps: int, score: int, time_in_game: str) -> None:
+def gameOver(snake: tuple[list[int]], border: tuple[list[int]], display_range: int, time_game_fps: int, score: int, start_time: int) -> None:
     """ Return the game over screen an quit game if some rule of lose is cacthed """
     decision = 0
     MessageBox = windll.user32.MessageBoxW
     if game.win(snake, display_range):
         decision = MessageBox(
-            None, f'You Win!!! Score: {score}.', f'Game Over in {time_in_game} minutes.', 5)
+            None, f'You Win!!! Score: {score}.', f'Game Over in {game.timeinGame(start_time)} minutes.', 5)
     elif game.lose(list(snake)[0], tuple(snake), border):
         # game.record_move_file(record)
         decision = MessageBox(
-            None, f'You lose. Score: {score}', f'Game Over at {time_in_game} minutes.', 5)
+            None, f'You lose. Score: {score}', f'Game Over at {game.timeinGame(start_time)} minutes.', 5)
     if decision == 2:
         quit()
         exit()
@@ -58,20 +58,19 @@ def program(name: str, display_range: int, time_game_fps: int):
         record.append((snake_direction, apple_pos))
 
         # region Screen/Display
-        game.display_score(screen, score)
         clock.tick(time_game_fps)  # refresh rate
 
         screen.fill((0, 0, 0))
         screen.blit(apple, apple_pos)
         for pos in snake:
             screen.blit(snake_skin, pos)
-        time_in_game = game.display_time(screen, start_time)
-        game.display_score(screen, score)
+
+        game.display_info(screen, score, start_time)
         display.update()
         # endregion
-        
+
         gameOver(snake, border, display_range,
-                 time_game_fps, score, time_in_game)
+                 time_game_fps, score, start_time)
 
 
 if __name__ == '__main__':

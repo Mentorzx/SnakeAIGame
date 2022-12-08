@@ -44,18 +44,22 @@ def program(name: str, display_range: int, time_game_fps: int):
     # monteCarlo = players.monte_carlo.MonteCarlo()
     record = []
     while True:
-        clock.tick(time_game_fps)  # refresh rate
-
+        # region Input
         eventAI = astar.getKey(apple_pos, tuple(snake),
                                snake_direction, border)
         snake_direction = game.control(eventAI, snake_direction)
         # snake_direction = monteCarlo.control(display_range, snake, apple_pos, border, snake_direction)
         game.inputKey(snake_direction)
+        # endregion
 
         snake, apple_pos, score = game.snakeMoviment(
             tuple(snake), snake_direction, apple_pos, display_range, score)
 
         record.append((snake_direction, apple_pos))
+
+        # region Screen/Display
+        game.display_score(screen, score)
+        clock.tick(time_game_fps)  # refresh rate
 
         screen.fill((0, 0, 0))
         screen.blit(apple, apple_pos)
@@ -64,6 +68,8 @@ def program(name: str, display_range: int, time_game_fps: int):
         time_in_game = game.display_time(screen, start_time)
         game.display_score(screen, score)
         display.update()
+        # endregion
+        
         gameOver(snake, border, display_range,
                  time_game_fps, score, time_in_game)
 

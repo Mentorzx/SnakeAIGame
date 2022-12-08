@@ -95,7 +95,7 @@ def snakeMoviment(snake: tuple[list[int]], snake_direction: int, apple_pos: tupl
     return snake, apple_pos, score
 
 
-def display_time(screen: pygame.surface.Surface, start_time: int) -> None:
+def display_time(screen: pygame.surface.Surface, start_time: int) -> str:
     """ Displays time on the screen """
     pygame.font.init()
     font = pygame.font.SysFont('arial', 30)
@@ -109,6 +109,7 @@ def display_time(screen: pygame.surface.Surface, start_time: int) -> None:
                        True, (0, 255, 255))
     screen.blit(text, (10, 10))
     pygame.display.flip()
+    return counting_string
 
 
 def display_score(screen: pygame.surface.Surface, score: int) -> None:

@@ -11,23 +11,22 @@ DOWN = 2
 LEFT = 3
 
 
-def gameOver(snake: tuple[list[int]], border: tuple[list[int]], display_range: int, time_game_fps: int, score: int) -> None:
+def gameOver(snake: tuple[list[int]], border: tuple[list[int]], display_range: int, time_game_fps: int, score: int, time_in_game: str) -> None:
     """ Return the game over screen an quit game if some rule of lose is cacthed """
+    decision = 0
+    MessageBox = windll.user32.MessageBoxW
     if game.win(snake, display_range):
-        MessageBox = windll.user32.MessageBoxW
-        if MessageBox(None, f'You Win!!! Score: {score}.', 'Game Over', 5) == 2:
-            quit()
-            exit()
-        else:
-            program(name, display_range, time_game_fps)
+        decision = MessageBox(
+            None, f'You Win!!! Score: {score}.', f'Game Over in {time_in_game} minutes.', 5)
     elif game.lose(list(snake)[0], tuple(snake), border):
         # game.record_move_file(record)
-        MessageBox = windll.user32.MessageBoxW
-        if MessageBox(None, 'You lose', 'Game Over', 5) == 2:
-            quit()
-            exit()
-        else:
-            program(name, display_range, time_game_fps)
+        decision = MessageBox(
+            None, f'You lose. Score: {score}', f'Game Over at {time_in_game} minutes.', 5)
+    if decision == 2:
+        quit()
+        exit()
+    elif decision == 4:
+        program(name, display_range, time_game_fps)
 
 
 def program(name: str, display_range: int, time_game_fps: int):
@@ -62,15 +61,16 @@ def program(name: str, display_range: int, time_game_fps: int):
         screen.blit(apple, apple_pos)
         for pos in snake:
             screen.blit(snake_skin, pos)
-        game.display_time(screen, start_time)
+        time_in_game = game.display_time(screen, start_time)
         game.display_score(screen, score)
         display.update()
-        gameOver(snake, border, display_range, time_game_fps, score)
+        gameOver(snake, border, display_range,
+                 time_game_fps, score, time_in_game)
 
 
 if __name__ == '__main__':
     name = 'Snake AI'
     time_game = 200
-    display_range = 600
+    display_range = 200
 
     program(name, display_range, time_game)

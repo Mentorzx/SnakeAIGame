@@ -18,15 +18,13 @@ def on_grid_random(display_range: int) -> tuple[int, int]:
     return (x//10 * 10, y//10 * 10)
 
 
-def getNewApple(snake, display_range):
+def getNewApple(snake: tuple[list[int]], display_range: int) -> tuple[int, int]:
     """ Return a new position for an apple """
-    count = int((display_range/10) ** 2)
-    apple_pos = None
-    for i in range(count):
+    apple_pos = on_grid_random(display_range)
+    while collision(apple_pos, snake):
         apple_pos = on_grid_random(display_range)
-        if not collision(apple_pos, snake):
-            break
     return apple_pos
+
 
 def collision(object1: tuple, object2: tuple) -> bool:
     """ Return True if have collision with 2 objects in somewhere
@@ -88,7 +86,7 @@ def snakeMoviment(snake: tuple[list[int]], snake_direction: int, apple_pos: tupl
     # a nova maçã tem que ser criada depois de reposicionar para que ela surga em um espaço vazio
     if gotApple:
         apple_pos = getNewApple(snake, display_range)
-        score += 1 
+        score += 1
 
     return snake, score, apple_pos, snake_list
 
@@ -119,7 +117,7 @@ def constructs(display_range: int) -> tuple[tuple[list[int]], pygame.surface.Sur
     return tuple(snake), snake_skin, apple, apple_pos, tuple(border)
 
 
-def inputTeclado(snake_direction: int) -> None:
+def inputKey(snake_direction: int) -> None:
     """ Verify if exist any input and return in game your result """
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -154,7 +152,7 @@ def read_move_file(save_number: str) -> str:
     return lines[line + 1]
 
 
-def record_move_file(record:list[tuple]):
+def record_move_file(record: list[tuple]):
     """ Record all moves in a file so that it can be replayed later """
     with open('config.txt', 'r') as config_file:
         record_number = config_file.readline().strip().split(' ')[1]
@@ -162,10 +160,10 @@ def record_move_file(record:list[tuple]):
         config_file.write(f'save_number: {int(record_number) + 1}')
 
     with open('save.txt', 'a') as record_file:
-            record_file.write(f'Save: {record_number} \n')
-            # record_file.write(f'Display_range: {display_range} \n')
-            # record_file.write(f'Start_position: {snake} \n')
-            # record_file.write(f'Start_direction: {direction} \n')
-            
-            record_file.write(f'{record}')
-            record_file.write(f'DEATH \n\n')
+        record_file.write(f'Save: {record_number} \n')
+        # record_file.write(f'Display_range: {display_range} \n')
+        # record_file.write(f'Start_position: {snake} \n')
+        # record_file.write(f'Start_direction: {direction} \n')
+
+        record_file.write(f'{record}')
+        record_file.write(f'DEATH \n\n')

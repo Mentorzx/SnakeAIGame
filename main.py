@@ -12,6 +12,7 @@ LEFT = 3
 
 
 def gameOver(snake, border, name, display_range, time_game_fps):
+    """ Return the game over screen an quit game if some rule of lose is cacthed """
     if game.lose(list(snake)[0], tuple(snake), border):
         # game.record_move_file(record)
         MessageBox = windll.user32.MessageBoxW
@@ -39,20 +40,22 @@ def program(name: str, display_range: int, time_game_fps: int):
         game.display_score(screen, score)
         clock.tick(time_game_fps)  # refresh rate
 
-        eventAI = astar.getKey(apple_pos, tuple(snake), snake_direction, border)
+        eventAI = astar.getKey(apple_pos, tuple(snake),
+                               snake_direction, border)
         snake_direction = game.control(eventAI, snake_direction)
         # snake_direction = monteCarlo.control(display_range, snake, apple_pos, border, snake_direction)
-        game.inputTeclado(snake_direction)
+        game.inputKey(snake_direction)
 
-        snake, score, apple_pos, snake = game.snakeMoviment(tuple(snake), snake_direction, apple_pos, display_range, score)
+        snake, score, apple_pos, snake = game.snakeMoviment(
+            tuple(snake), snake_direction, apple_pos, display_range, score)
 
         record.append((snake_direction, apple_pos))
 
         gameOver(snake, border, name, display_range, time_game_fps)
-        
+
         screen.fill((0, 0, 0))
         screen.blit(apple, apple_pos)
-        
+
         for pos in snake:
             screen.blit(snake_skin, pos)
         display.update()
@@ -60,7 +63,7 @@ def program(name: str, display_range: int, time_game_fps: int):
 
 if __name__ == '__main__':
     name = 'Snake AI'
-    time_game = 100
-    display_range = 200
+    time_game = 200
+    display_range = 500
 
     program(name, display_range, time_game)

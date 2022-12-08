@@ -11,9 +11,16 @@ DOWN = 2
 LEFT = 3
 
 
-def gameOver(snake, border, name, display_range, time_game_fps):
+def gameOver(snake: tuple[list[int]], border: tuple[list[int]], display_range: int, time_game_fps: int, score: int) -> None:
     """ Return the game over screen an quit game if some rule of lose is cacthed """
-    if game.lose(list(snake)[0], tuple(snake), border):
+    if game.win(snake, display_range):
+        MessageBox = windll.user32.MessageBoxW
+        if MessageBox(None, f'You Win!!! Score: {score}.', 'Game Over', 5) == 2:
+            quit()
+            exit()
+        else:
+            program(name, display_range, time_game_fps)
+    elif game.lose(list(snake)[0], tuple(snake), border):
         # game.record_move_file(record)
         MessageBox = windll.user32.MessageBoxW
         if MessageBox(None, 'You lose', 'Game Over', 5) == 2:
@@ -31,13 +38,13 @@ def program(name: str, display_range: int, time_game_fps: int):
     snake, snake_skin, apple, apple_pos, border = game.constructs(
         display_range)
     clock = time.Clock()
+    start_time = time.get_ticks()
     snake_direction = LEFT
     score = 0
     astar = players.a_star.AStar()
-    monteCarlo = players.monte_carlo.MonteCarlo()
+    # monteCarlo = players.monte_carlo.MonteCarlo()
     record = []
     while True:
-        game.display_score(screen, score)
         clock.tick(time_game_fps)  # refresh rate
 
         eventAI = astar.getKey(apple_pos, tuple(snake),
@@ -46,24 +53,24 @@ def program(name: str, display_range: int, time_game_fps: int):
         # snake_direction = monteCarlo.control(display_range, snake, apple_pos, border, snake_direction)
         game.inputKey(snake_direction)
 
-        snake, score, apple_pos, snake = game.snakeMoviment(
+        snake, apple_pos, score = game.snakeMoviment(
             tuple(snake), snake_direction, apple_pos, display_range, score)
 
         record.append((snake_direction, apple_pos))
 
-        gameOver(snake, border, name, display_range, time_game_fps)
-
         screen.fill((0, 0, 0))
         screen.blit(apple, apple_pos)
-
         for pos in snake:
             screen.blit(snake_skin, pos)
+        game.display_time(screen, start_time)
+        game.display_score(screen, score)
         display.update()
+        gameOver(snake, border, display_range, time_game_fps, score)
 
 
 if __name__ == '__main__':
     name = 'Snake AI'
     time_game = 200
-    display_range = 500
+    display_range = 600
 
     program(name, display_range, time_game)

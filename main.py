@@ -60,6 +60,7 @@ def program(name: str, display_range: int, time_game_fps: int):
         # region Screen/Display
         game.display_score(screen, score)
         clock.tick(time_game_fps)  # refresh rate
+
         screen.fill((0, 0, 0))
         screen.blit(apple, apple_pos)
         for pos in snake:

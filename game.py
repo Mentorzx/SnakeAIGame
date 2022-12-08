@@ -99,26 +99,23 @@ def snakeMoviment(snake: tuple[list[int]], snake_direction: int, apple_pos: tupl
     return snake, apple_pos, score
 
 
-def display_time(screen: pygame.surface.Surface, start_time: int) -> str:
-    """ Displays time on the screen """
-    pygame.font.init()
-    font = pygame.font.SysFont('arial', 30)
+def timeinGame(start_time: int) -> str:
     counting_time = pygame.time.get_ticks() - start_time
     counting_minutes = str(counting_time//60000).zfill(2)
     counting_seconds = str((counting_time % 60000)//1000).zfill(2)
     counting_millisecond = str(counting_time % 1000).zfill(3)
     counting_string = "%s:%s:%s" % (
         counting_minutes, counting_seconds, counting_millisecond)
-    text = font.render("Time --> " + str(counting_string),
-                       True, (0, 255, 255))
-    screen.blit(text, (10, 10))
-    pygame.display.flip()
     return counting_string
 
 
-def display_score(screen: pygame.surface.Surface, score: int) -> None:
-    """ Displays score on the screen """
+def display_info(screen: pygame.surface.Surface, score: int, start_time: int) -> None:
+    """ Displays time on the screen """
+    pygame.font.init()
     font = pygame.font.SysFont('arial', 30)
+    text = font.render("Time --> " + str(timeinGame(start_time)),
+                       True, (0, 255, 255))
+    screen.blit(text, (10, 10))
     text = font.render("Score -> " + str(score), True, (0, 255, 255))
     screen.blit(text, (10, 50))
     pygame.display.flip()

@@ -1,6 +1,6 @@
 from sys import exit
 from ctypes import windll
-from pygame import init, quit, display, time
+from pygame import init, quit, display, time, draw, Rect
 import game
 import record
 import players.a_star
@@ -23,7 +23,6 @@ def playback(playback_number: int, time_game_fps: int):
     clock = time.Clock()
     start_time = time.get_ticks()
     score = 0
-    time_in_game = ''
     snake_direction = None
     apple_pos = None
     for m in moves:
@@ -44,25 +43,25 @@ def playback(playback_number: int, time_game_fps: int):
             apple_pos = apple_pos_file
 
         # region Screen/Display
-        time_in_game = game.display_screen(screen, score, clock, time_game_fps, snake, snake_skin, apple, apple_pos, start_time)
+        game.display_screen(screen, score, clock, time_game_fps, snake, snake_skin, apple, apple_pos, start_time)
         display.update()
         # endregion
 
-    record.finishPlayback(snake, display_range, border, score, time_in_game)
+    record.finishPlayback(snake, display_range, border, score, start_time)
 
 
-def gameOver(snake: tuple[list[int]], border: tuple[list[int]], display_range: int, time_game_fps: int, score: int, time_in_game: str, record_str: str) -> None:
+def gameOver(snake: tuple[list[int]], border: tuple[list[int]], display_range: int, time_game_fps: int, score: int, start_time: int, record_str: str) -> None:
     """ Return the game over screen an quit game if some rule of lose is cacthed """
     decision = 0
     MessageBox = windll.user32.MessageBoxW
     if game.win(snake, display_range):
-        record.finishRecord(record_str, time_in_game)
+        record.finishRecord(record_str, game.timeinGame(start_time))
         decision = MessageBox(
-            None, f'You Win!!! Score: {score}.', f'Game Over in {time_in_game} minutes.', 5)
+            None, f'You Win!!! Score: {score}.', f'Game Over in {game.timeinGame(start_time)} minutes.', 5)
     elif game.lose(list(snake)[0], tuple(snake), border):
-        record.finishRecord(record_str, time_in_game)
+        record.finishRecord(record_str, game.timeinGame(start_time))
         decision = MessageBox(
-            None, f'You lose. Score: {score}', f'Game Over at {time_in_game} minutes.', 5)
+            None, f'You lose. Score: {score}', f'Game Over at {game.timeinGame(start_time)} minutes.', 5)
     if decision == 2:
         quit()
         exit()
@@ -97,19 +96,18 @@ def program(name: str, display_range: int, time_game_fps: int):
             tuple(snake), snake_direction, apple_pos, display_range, score)
 
         # region Screen/Display
-        time_in_game = game.display_screen(screen, score, clock, time_game_fps, snake, snake_skin, apple, apple_pos, start_time)
+        game.display_screen(screen, score, clock, time_game_fps, snake, snake_skin, apple, apple_pos, start_time)
         display.update()
         # endregion
-        
-        record_str += record.recordMoveFormat(snake_direction, apple_pos)
+
         gameOver(snake, border, display_range,
-                 time_game_fps, score, time_in_game, record_str)
+                 time_game_fps, score, start_time, record_str)
 
 
 if __name__ == '__main__':
     name = 'Snake AI'
-    time_game = 100
-    display_range = 100
+    time_game = 60
+    display_range = 300
 
     program(name, display_range, time_game)
 

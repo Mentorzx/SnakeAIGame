@@ -72,13 +72,13 @@ def recordReadStart(playback_number: int) -> tuple[int, tuple[list[int]], list[s
     return display_range, tuple(snake), moves
 
 
-def finishPlayback(snake: tuple[list[int]], display_range: int, border: tuple[list[int]], score: int, time_in_game: str) -> None:
+def finishPlayback(snake: tuple[list[int]], display_range: int, border: tuple[list[int]], score: int, start_time: int) -> None:
     """ End of the playback """
     decision = 0
     MessageBox = windll.user32.MessageBoxW
     if game.win(snake, display_range) or game.lose(list(snake)[0], tuple(snake), border):
         decision = MessageBox(
-            None, f'End of record!!! Score: {score}.', f'Game Over in {time_in_game} minutes.', 5)
+            None, f'End of record!!! Score: {score}.', f'Game Over in {game.timeinGame(start_time)} minutes.', 5)
     if decision == 2:
         quit()
         exit()

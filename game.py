@@ -2,6 +2,7 @@ import sys
 import pygame
 from random import randint
 from pygame.locals import KEYDOWN, K_UP, K_DOWN, K_LEFT, K_RIGHT, QUIT
+from pygame import draw, Rect
 
 
 UP = 0
@@ -99,43 +100,40 @@ def snakeMoviment(snake: tuple[list[int]], snake_direction: int, apple_pos: tupl
     return snake, apple_pos, score
 
 
-def display_time(screen: pygame.surface.Surface, start_time: int) -> str:
-    """ Displays time on the screen """
-    pygame.font.init()
-    font = pygame.font.SysFont('arial', 30)
+def timeinGame(start_time: int) -> str:
     counting_time = pygame.time.get_ticks() - start_time
     counting_minutes = str(counting_time//60000).zfill(2)
     counting_seconds = str((counting_time % 60000)//1000).zfill(2)
     counting_millisecond = str(counting_time % 1000).zfill(3)
     counting_string = "%s:%s:%s" % (
         counting_minutes, counting_seconds, counting_millisecond)
-    text = font.render(str(counting_string),
-                       True, (0, 255, 255))
-    screen.blit(text, (10, 10))
-    pygame.display.flip()
     return counting_string
 
 
-def display_score(screen: pygame.surface.Surface, score: int) -> None:
-    """ Displays score on the screen """
+def display_info(screen: pygame.surface.Surface, score: int, start_time: int) -> None:
+    """ Displays time on the screen """
+    pygame.font.init()
     font = pygame.font.SysFont('arial', 30)
+    text = font.render(str(timeinGame(start_time)),
+                       True, (0, 255, 255))
+    screen.blit(text, (10, 10))
     text = font.render(str(score), True, (0, 255, 255))
     screen.blit(text, (10, 50))
     pygame.display.flip()
 
 
 def display_screen(screen, score, clock, time_game_fps, snake, snake_skin, apple, apple_pos, start_time):
-    display_score(screen, score)
     clock.tick(time_game_fps)  # refresh rate
 
     screen.fill((0, 0, 0))
     screen.blit(apple, apple_pos)
-    for pos in snake:
-        screen.blit(snake_skin, pos)
-    time_in_game = display_time(screen, start_time)
-    display_score(screen, score)
 
-    return time_in_game
+    for pos in snake:
+        snake_border = Rect(pos[0], pos[1], 10, 10)
+        draw.rect(snake_skin, (0, 150, 0), snake_border, 1)
+        screen.blit(snake_skin, pos)
+
+    display_info(screen, score, start_time)
 
 
 def constructs(display_range: int) -> tuple[tuple[list[int]], pygame.surface.Surface, pygame.surface.Surface, tuple[int, int], tuple[list[int]]]:

@@ -10,6 +10,8 @@ UP = 0
 RIGHT = 1
 DOWN = 2
 LEFT = 3
+BLACK, WHITE, RED, GREEN, BLUE, ORANGE, YELLOW, INDIGO, PURPLE, TURQUOISE = (0, 0, 0), (255, 255, 255), (
+    255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 127, 0), (255, 255, 0), (75, 0, 130), (160, 32, 240), (64, 224, 208)
 
 
 def playback(playback_number: int, time_game_fps: int):
@@ -43,14 +45,14 @@ def playback(playback_number: int, time_game_fps: int):
             apple_pos = apple_pos_file
 
         # region Screen/Display
-        game.display_screen(screen, score, clock, time_game_fps, snake, snake_skin, apple, apple_pos, start_time)
+        game.display_screen(screen, score, clock, time_game_fps, snake, snake_skin, apple, apple_pos, start_time, color_background, color_snake_border, color_infos)
         display.update()
         # endregion
 
     record.finishPlayback(snake, display_range, border, score, start_time)
 
 
-def gameOver(snake: tuple[list[int]], border: tuple[list[int]], display_range: int, time_game_fps: int, score: int, start_time: int, record_str: str) -> None:
+def gameOver(snake: tuple[list[int]], border: tuple[list[int]], display_range: int, time_game_fps: int, score: int, start_time: int, record_str: str, color_background: tuple[int, int, int] = BLACK, color_infos: tuple[int, int, int] = BLUE, color_apple: tuple[int, int, int] = RED, color_snake: tuple[int, int, int] = WHITE, color_snake_border: tuple[int, int, int] = BLACK) -> None:
     """ Return the game over screen an quit game if some rule of lose is cacthed """
     decision = 0
     MessageBox = windll.user32.MessageBoxW
@@ -66,16 +68,17 @@ def gameOver(snake: tuple[list[int]], border: tuple[list[int]], display_range: i
         quit()
         exit()
     elif decision == 4:
-        program(name, display_range, time_game_fps)
+        program(name, display_range, time_game_fps, color_background,
+                color_infos, color_apple, color_snake, color_snake_border)
 
 
-def program(name: str, display_range: int, time_game_fps: int):
+def program(name: str, display_range: int, time_game_fps: int, color_background: tuple[int, int, int] = BLACK, color_infos: tuple[int, int, int] = BLUE, color_apple: tuple[int, int, int] = RED, color_snake: tuple[int, int, int] = WHITE, color_snake_border: tuple[int, int, int] = BLACK):
     """ Main function of the game that execute and display the hole game """
     init()
     screen = display.set_mode((display_range, display_range))
     display.set_caption(name)
     snake, snake_skin, apple, apple_pos, border = game.constructs(
-        display_range)
+        display_range, color_snake, color_apple)
     clock = time.Clock()
     start_time = time.get_ticks()
     snake_direction = LEFT
@@ -96,20 +99,27 @@ def program(name: str, display_range: int, time_game_fps: int):
             tuple(snake), snake_direction, apple_pos, display_range, score)
 
         # region Screen/Display
-        game.display_screen(screen, score, clock, time_game_fps, snake, snake_skin, apple, apple_pos, start_time)
+        game.display_screen(screen, score, clock, time_game_fps, snake, snake_skin, apple, apple_pos, start_time, color_background, color_snake_border, color_infos)
         display.update()
         # endregion
 
+        record_str += record.recordMoveFormat(snake_direction, apple_pos)
         gameOver(snake, border, display_range,
-                 time_game_fps, score, start_time, record_str)
+                 time_game_fps, score, start_time, record_str, color_background, color_infos, color_apple, color_snake, color_snake_border)
 
 
 if __name__ == '__main__':
     name = 'Snake AI'
-    time_game = 60
-    display_range = 300
+    display_range = 100
+    time_game = 2000
+    color_background = BLACK
+    color_infos = TURQUOISE
+    color_apple = RED
+    color_snake = WHITE
+    color_snake_border = BLACK
 
-    program(name, display_range, time_game)
+    program(name, display_range, time_game, color_background,
+            color_infos, color_apple, color_snake, color_snake_border)
 
-    record_number = 0
-    playback(record_number, time_game)
+    # record_number = 0
+    # playback(record_number, time_game)

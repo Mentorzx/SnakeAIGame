@@ -37,9 +37,9 @@ def finishRecord(record: str, time_in_game: str) -> None:
         record_file.write(f'Time: {time_in_game}\n\n')
 
 
-def recordMoveFormat(direction: int, apple: tuple[int, int]) -> str:
+def recordMoveFormat(direction: int, apple_pos: tuple[int, int]) -> str:
     """ Return the informations on file format """
-    return f'({direction},{apple[0]},{apple[1]})-'
+    return f'({direction},{apple_pos[0]},{apple_pos[1]})-'
 
 
 def recordReadMoveFormat(move: str) -> tuple[int, tuple[int, int]]:

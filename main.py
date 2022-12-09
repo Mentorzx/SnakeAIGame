@@ -23,7 +23,7 @@ def playback(playback_number: int, time_game_fps: int):
     clock = time.Clock()
     start_time = time.get_ticks()
     score = 0
-    time_in_game = 0
+    time_in_game = ''
     snake_direction = None
     apple_pos = None
     for m in moves:

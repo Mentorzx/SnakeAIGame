@@ -9,9 +9,11 @@ UP = 0
 RIGHT = 1
 DOWN = 2
 LEFT = 3
+BLACK, WHITE, RED, GREEN, BLUE, ORANGE, YELLOW, INDIGO, PURPLE, TURQUOISE = (0, 0, 0), (255, 255, 255), (
+    255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 127, 0), (255, 255, 0), (75, 0, 130), (160, 32, 240), (64, 224, 208)
 
 
-def gameOver(snake: tuple[list[int]], border: tuple[list[int]], display_range: int, time_game_fps: int, score: int, start_time: int) -> None:
+def gameOver(snake: tuple[list[int]], border: tuple[list[int]], display_range: int, time_game_fps: int, score: int, start_time: int, color_background: tuple[int, int, int] = BLACK, color_infos: tuple[int, int, int] = BLUE, color_apple: tuple[int, int, int] = RED, color_snake: tuple[int, int, int] = WHITE, color_snake_border: tuple[int, int, int] = BLACK) -> None:
     """ Return the game over screen an quit game if some rule of lose is cacthed """
     decision = 0
     MessageBox = windll.user32.MessageBoxW
@@ -26,16 +28,17 @@ def gameOver(snake: tuple[list[int]], border: tuple[list[int]], display_range: i
         quit()
         exit()
     elif decision == 4:
-        program(name, display_range, time_game_fps)
+        program(name, display_range, time_game_fps, color_background,
+                color_infos, color_apple, color_snake, color_snake_border)
 
 
-def program(name: str, display_range: int, time_game_fps: int):
+def program(name: str, display_range: int, time_game_fps: int, color_background: tuple[int, int, int] = BLACK, color_infos: tuple[int, int, int] = BLUE, color_apple: tuple[int, int, int] = RED, color_snake: tuple[int, int, int] = WHITE, color_snake_border: tuple[int, int, int] = BLACK):
     """ Main function of the game that execute and display the hole game """
     init()
     screen = display.set_mode((display_range, display_range))
     display.set_caption(name)
     snake, snake_skin, apple, apple_pos, border = game.constructs(
-        display_range)
+        display_range, color_snake, color_apple)
     clock = time.Clock()
     start_time = time.get_ticks()
     snake_direction = LEFT
@@ -60,25 +63,31 @@ def program(name: str, display_range: int, time_game_fps: int):
         # region Screen/Display
         clock.tick(time_game_fps)  # refresh rate
 
-        screen.fill((0, 0, 0))
+        screen.fill(color_background)
         screen.blit(apple, apple_pos)
 
         for pos in snake:
             snake_border = Rect(pos[0], pos[1], 10, 10)
-            draw.rect(snake_skin, (0, 150, 0), snake_border, 1)
+            draw.rect(snake_skin, color_snake_border, snake_border, 1)
             screen.blit(snake_skin, pos)
 
-        game.display_info(screen, score, start_time)
+        game.display_info(screen, score, start_time, color_infos)
         display.update()
         # endregion
 
         gameOver(snake, border, display_range,
-                 time_game_fps, score, start_time)
+                 time_game_fps, score, start_time, color_background, color_infos, color_apple, color_snake, color_snake_border)
 
 
 if __name__ == '__main__':
     name = 'Snake AI'
-    time_game = 60
-    display_range = 300
+    display_range = 400
+    time_game = 200
+    color_background = BLACK
+    color_infos = TURQUOISE
+    color_apple = RED
+    color_snake = WHITE
+    color_snake_border = BLACK
 
-    program(name, display_range, time_game)
+    program(name, display_range, time_game, color_background,
+            color_infos, color_apple, color_snake, color_snake_border)

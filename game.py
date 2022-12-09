@@ -8,6 +8,8 @@ UP = 0
 RIGHT = 1
 DOWN = 2
 LEFT = 3
+BLACK, WHITE, RED, GREEN, BLUE, ORANGE, YELLOW, INDIGO, PURPLE, TURQUOISE = (0, 0, 0), (255, 255, 255), (
+    255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 127, 0), (255, 255, 0), (75, 0, 130), (160, 32, 240), (64, 224, 208)
 
 
 def on_grid_random(display_range: int) -> tuple[int, int]:
@@ -109,26 +111,26 @@ def timeinGame(start_time: int) -> str:
     return counting_string
 
 
-def display_info(screen: pygame.surface.Surface, score: int, start_time: int) -> None:
+def display_info(screen: pygame.surface.Surface, score: int, start_time: int, color_infos: tuple[int, int, int] = BLUE) -> None:
     """ Displays time on the screen """
     pygame.font.init()
     font = pygame.font.SysFont('arial', 30)
     text = font.render("Time --> " + str(timeinGame(start_time)),
-                       True, (0, 255, 255))
+                       True, color_infos)
     screen.blit(text, (10, 10))
-    text = font.render("Score -> " + str(score), True, (0, 255, 255))
+    text = font.render("Score -> " + str(score), True, color_infos)
     screen.blit(text, (10, 50))
     pygame.display.flip()
 
 
-def constructs(display_range: int) -> tuple[tuple[list[int]], pygame.surface.Surface, pygame.surface.Surface, tuple[int, int], tuple[list[int]]]:
+def constructs(display_range: int, color_snake: tuple[int, int, int] = WHITE, color_apple: tuple[int, int, int] = RED) -> tuple[tuple[list[int]], pygame.surface.Surface, pygame.surface.Surface, tuple[int, int], tuple[list[int]]]:
     """ Return tuples properties of the objects in the game """
     snake = [[50, 50], [60, 50], [70, 50]]
     snake_skin = pygame.Surface((10, 10))
-    snake_skin.fill((255, 255, 255))
+    snake_skin.fill(color_snake)
     apple_pos = on_grid_random(display_range)
     apple = pygame.Surface((10, 10))
-    apple.fill((255, 0, 0))
+    apple.fill(color_apple)
     border = []
     for i in range(display_range-7):
         border_init = [-10, i]

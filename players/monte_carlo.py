@@ -52,9 +52,6 @@ class MonteCarlo ():
             if i[1] == highest_score:
                 pool.append(i[0])
 
-        if not pool:
-            print('oi')
-
         rand_idx = randrange(len(pool))
         return pool[rand_idx]
 

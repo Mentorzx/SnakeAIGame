@@ -118,8 +118,8 @@ if __name__ == '__main__':
     color_snake = WHITE
     color_snake_border = BLACK
 
-    # program(name, display_range, time_game, color_background,
-    #         color_infos, color_apple, color_snake, color_snake_border)
+    program(name, display_range, time_game, color_background,
+            color_infos, color_apple, color_snake, color_snake_border)
 
     record_number = 5
     playback(record_number, time_game)

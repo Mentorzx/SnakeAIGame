@@ -2,6 +2,7 @@ import sys
 import pygame
 from random import randint
 from pygame.locals import KEYDOWN, K_UP, K_DOWN, K_LEFT, K_RIGHT, QUIT
+from pygame import draw, Rect
 
 
 UP = 0
@@ -123,9 +124,30 @@ def display_info(screen: pygame.surface.Surface, score: int, start_time: int, co
     pygame.display.flip()
 
 
+def display_screen(screen, score, clock, time_game_fps, snake, snake_skin, apple, apple_pos, start_time, color_background, color_snake_border, color_infos):
+    clock.tick(time_game_fps)  # refresh rate
+
+    screen.fill(color_background)
+    screen.blit(apple, apple_pos)
+
+    for pos in snake:
+        snake_border = Rect(pos[0], pos[1], 10, 10)
+        draw.rect(snake_skin, color_snake_border, snake_border, 1)
+        screen.blit(snake_skin, pos)
+
+    display_info(screen, score, start_time, color_infos)
+
+
 def constructs(display_range: int, color_snake: tuple[int, int, int] = WHITE, color_apple: tuple[int, int, int] = RED) -> tuple[tuple[list[int]], pygame.surface.Surface, pygame.surface.Surface, tuple[int, int], tuple[list[int]]]:
     """ Return tuples properties of the objects in the game """
     snake = [[50, 50], [60, 50], [70, 50]]
+    apple_pos = on_grid_random(display_range)
+    snake_skin, apple, border = subConstructs(display_range, color_snake, color_apple)
+    return tuple(snake), snake_skin, apple, apple_pos, tuple(border)
+
+
+def subConstructs(display_range: int, color_snake: tuple[int, int, int] = WHITE, color_apple: tuple[int, int, int] = RED) -> tuple[pygame.surface.Surface, pygame.surface.Surface, tuple[list[int]]]:
+    """ Return tuples properties of the objects in the game """
     snake_skin = pygame.Surface((10, 10))
     snake_skin.fill(color_snake)
     apple_pos = on_grid_random(display_range)
@@ -137,7 +159,7 @@ def constructs(display_range: int, color_snake: tuple[int, int, int] = WHITE, co
         border_end = [display_range, i]
         border.extend([border_init, border_init[::-1],
                       border_end, border_end[::-1]])
-    return tuple(snake), snake_skin, apple, apple_pos, tuple(border)
+    return  snake_skin, apple, tuple(border)
 
 
 def inputKey(snake_direction: int) -> None:
@@ -165,28 +187,4 @@ def getPossibleMoves(current: list[int]) -> list[int]:
     return possible_moves
 
 
-def read_move_file(save_number: str) -> str:
-    """ Read the record file """
-    with open('save.txt', 'r') as save_file:
-        lines = save_file.readlines()
-    line = 0
-    while lines[line] != f'save_number: {save_number}':
-        line += 1
-    return lines[line + 1]
 
-
-def record_move_file(record: list[tuple]):
-    """ Record all moves in a file so that it can be replayed later """
-    with open('config.txt', 'r') as config_file:
-        record_number = config_file.readline().strip().split(' ')[1]
-    with open('config.txt', 'w') as config_file:
-        config_file.write(f'save_number: {int(record_number) + 1}')
-
-    with open('save.txt', 'a') as record_file:
-        record_file.write(f'Save: {record_number} \n')
-        # record_file.write(f'Display_range: {display_range} \n')
-        # record_file.write(f'Start_position: {snake} \n')
-        # record_file.write(f'Start_direction: {direction} \n')
-
-        record_file.write(f'{record}')
-        record_file.write(f'DEATH \n\n')

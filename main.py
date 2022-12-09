@@ -84,14 +84,14 @@ def program(name: str, display_range: int, time_game_fps: int, color_background:
     snake_direction = LEFT
     score = 0
     astar = players.a_star.AStar()
-    # monteCarlo = players.monte_carlo.MonteCarlo()
+    monteCarlo = players.monte_carlo.MonteCarlo()
     record_str = record.startRecord(display_range, snake)
     while True:
         # region Input
-        eventAI = astar.getKey(apple_pos, tuple(snake),
-                               snake_direction, border)
-        snake_direction = game.control(eventAI, snake_direction)
-        # snake_direction = monteCarlo.control(display_range, snake, apple_pos, border, snake_direction)
+        # eventAI = astar.getKey(apple_pos, tuple(snake),
+        #                        snake_direction, border)
+        # snake_direction = game.control(eventAI, snake_direction)
+        snake_direction = monteCarlo.control(display_range, snake, apple_pos, border, snake_direction)
         game.inputKey(snake_direction)
         # endregion
 
@@ -110,16 +110,16 @@ def program(name: str, display_range: int, time_game_fps: int, color_background:
 
 if __name__ == '__main__':
     name = 'Snake AI'
-    display_range = 100
-    time_game = 2000
+    display_range = 60
+    time_game = 10
     color_background = BLACK
     color_infos = TURQUOISE
     color_apple = RED
     color_snake = WHITE
     color_snake_border = BLACK
 
-    program(name, display_range, time_game, color_background,
-            color_infos, color_apple, color_snake, color_snake_border)
+    # program(name, display_range, time_game, color_background,
+    #         color_infos, color_apple, color_snake, color_snake_border)
 
-    # record_number = 0
-    # playback(record_number, time_game)
+    record_number = 5
+    playback(record_number, time_game)

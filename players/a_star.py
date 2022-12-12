@@ -1,7 +1,6 @@
 from random import randrange
 from pygame.locals import K_UP, K_DOWN, K_LEFT, K_RIGHT
 from game import lose, getPossibleMoves
-#from queue import PriorityQueue
 
 
 class AStar:
@@ -23,12 +22,10 @@ class AStar:
             K_LEFT: K_RIGHT,
             K_RIGHT: K_LEFT
         }
-
         self.moves = 0
 
     def getDistances(self, goal: tuple[int, int], current: list, snake: tuple[list[int]], objects: tuple[list[int]]) -> list:
         """ Finding distance for each path """
-        # distances = PriorityQueue()
         distances = []
         self.moves += 1
         possible_moves = getPossibleMoves(snake[0])
@@ -55,15 +52,12 @@ class AStar:
                 gn = self.moves
                 hn = abs(x - goal_x) + abs(y - goal_y)
                 fn = gn + hn
-                # add to queue
-                # distances.put((fn, path))
                 distances.append((fn, path))
         return distances
 
     def getKey(self, apple: tuple[int, int], snake: tuple[list[int]], snake_direction: int, objects: tuple) -> int:
         """ Returns the next step """
         distances = self.getDistances(apple, snake[0], snake, objects)
-        # if distances.qsize() == 0:
         if len(distances) == 0:
             return snake_direction
         index = 0
@@ -75,4 +69,3 @@ class AStar:
             else:
                 index = 1
         return distances[index][1]
-       # return distances.get()[1]

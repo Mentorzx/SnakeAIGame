@@ -1,10 +1,9 @@
-from sys import exit
-from ctypes import windll
-from pygame import init, quit, display, time, draw, Rect
 import game
 import record
-from players.a_star import Agent
 import players.monte_carlo
+from sys import exit
+from ctypes import windll
+from pygame import init, quit, display, time
 
 UP = 0
 RIGHT = 1
@@ -18,10 +17,8 @@ def playback(playback_number: int, time_game_fps: int):
     init()
     display_range, snake, moves = record.recordReadStart(playback_number)
     snake_skin, apple, border = game.subConstructs(display_range)
-
     screen = display.set_mode((display_range, display_range))
     display.set_caption(f'Playback {playback_number}')
-    
     clock = time.Clock()
     start_time = time.get_ticks()
     score = 0
@@ -31,25 +28,21 @@ def playback(playback_number: int, time_game_fps: int):
     for m in moves:
         if m.__contains__('DEATH'):
             break
-
         snake_direction, apple_pos_file = record.recordReadMoveFormat(m)
         if not apple_pos:
             apple_pos = apple_pos_file
             newApple = False
         else:
             newApple = apple_pos != apple_pos_file
-
         snake, apple_pos, score = game.snakeMoviment(
             tuple(snake), snake_direction, apple_pos, display_range, score)
-
         if newApple:
             apple_pos = apple_pos_file
-
         # region Screen/Display
-        game.display_screen(screen, score, clock, time_game_fps, snake, snake_skin, apple, apple_pos, start_time, color_background, color_snake_border, color_infos)
+        game.display_screen(screen, score, clock, time_game_fps, snake, snake_skin, apple,
+                            apple_pos, start_time, color_background, color_snake_border, color_infos)
         display.update()
         # endregion
-
     record.finishPlayback(snake, display_range, border, score, start_time)
 
 
@@ -88,21 +81,18 @@ def program(name: str, display_range: int, time_game_fps: int, color_background:
     record_str = record.startRecord(display_range, snake)
     while True:
         # region Input
-        snake_direction = Agent.makeDecision(
-            snake, apple_pos, snake_direction, border, display_range)
-        # snake_direction = LEFT
-        # snake_direction = monteCarlo.control(display_range, snake, apple_pos, border, snake_direction)
-        game.inputKey(snake_direction)
+        snake_direction = monteCarlo.control(display_range, snake, apple_pos, border, snake_direction)
         # endregion
 
         snake, apple_pos, score = game.snakeMoviment(
             tuple(snake), snake_direction, apple_pos, display_range, score)
 
         # region Screen/Display
-        game.display_screen(screen, score, clock, time_game_fps, snake, snake_skin, apple, apple_pos, start_time, color_background, color_snake_border, color_infos)
+        game.display_screen(screen, score, clock, time_game_fps, snake, snake_skin, apple,
+                            apple_pos, start_time, color_background, color_snake_border, color_infos)
         display.update()
         # endregion
-
+        
         record_str += record.recordMoveFormat(snake_direction, apple_pos)
         gameOver(snake, border, display_range,
                  time_game_fps, score, start_time, record_str, color_background, color_infos, color_apple, color_snake, color_snake_border)

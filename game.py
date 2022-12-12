@@ -116,10 +116,10 @@ def display_info(screen: pygame.surface.Surface, score: int, start_time: int, co
     """ Displays time on the screen """
     pygame.font.init()
     font = pygame.font.SysFont('arial', 30)
-    text = font.render("Time --> " + str(timeinGame(start_time)),
+    text = font.render(str(timeinGame(start_time)),
                        True, color_infos)
     screen.blit(text, (10, 10))
-    text = font.render("Score -> " + str(score), True, color_infos)
+    text = font.render(str(score), True, color_infos)
     screen.blit(text, (10, 50))
     pygame.display.flip()
 

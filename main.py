@@ -110,7 +110,7 @@ def program(name: str, display_range: int, time_game_fps: int, color_background:
 
 if __name__ == '__main__':
     name = 'Snake AI'
-    display_range = 60
+    display_range = 120
     time_game = 10
     color_background = BLACK
     color_infos = TURQUOISE

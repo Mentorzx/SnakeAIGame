@@ -30,8 +30,8 @@ class MonteCarlo ():
                   border, snake_direction, score_map]
 
         # --- chamados dos bots ---
-        with ThreadPoolExecutor(max_workers=10) as executor:
-            for index in range(10000):
+        with ThreadPoolExecutor(max_workers=15) as executor:
+            for index in range(15000):
                 executor.submit(self.thread_program, display_range, snake,
                                 apple_pos, border, snake_direction, score_map, index)
 
@@ -67,7 +67,6 @@ class MonteCarlo ():
 
         # lista de movimentos possiveis
         move_list = self.getPossibleMoves(current)
-        # move_list = [RIGHT, LEFT, UP, DOWN]
 
         # confere se esse movimento vai bater
         for move in move_list:
@@ -101,10 +100,8 @@ class MonteCarlo ():
         snake_bot = list(deepcopy(snake))
         snake_bot_direction = deepcopy(snake_direction)
         apple_bot_pos = deepcopy(apple_pos)
-        energy = ((display_range/10) ** 3)
+        energy = ((display_range/10) ** 2)
         apple_count = 0
-        valor_step = 0
-        valor_death = 0
         first_move = None
         while True:
             # --- controle AI ---
@@ -123,12 +120,7 @@ class MonteCarlo ():
 
             # --- maçã ---
             if collision(tuple(snake_bot[0]), apple_bot_pos):
-                # apple_bot_pos = on_grid_random(display_range)
                 apple_count += 10  # Manipulate to AI
-                # snake_bot = list(snake_bot).append([0, 0])
-                # snake_bot = tuple(snake_bot)
-
-                # energy = (display_range/10) * 2
 
                 return first_move, apple_count
             else:

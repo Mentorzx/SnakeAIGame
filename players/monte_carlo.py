@@ -24,14 +24,14 @@ class MonteCarlo ():
         ]
 
     # Manipulate to AI
-    def control(self, display_range: int, snake: list[list[int]], apple_pos: surface.Surface, border, snake_direction: int) -> int:
+    def control(self, display_range: int, snake: tuple[list[int]], apple_pos: tuple[int, int], border, snake_direction: int) -> int:
         score_map = [(0, 0), (0, 0), (0, 0), (0, 0)]
         parans = [display_range, snake, apple_pos,
                   border, snake_direction, score_map]
 
         # --- chamados dos bots ---
         with ThreadPoolExecutor(max_workers=10) as executor:
-            for index in range(1000):
+            for index in range(10000):
                 executor.submit(self.thread_program, display_range, snake,
                                 apple_pos, border, snake_direction, score_map, index)
 
@@ -40,10 +40,9 @@ class MonteCarlo ():
         score_average = []
         for i in range(4):
             if score_map[i][0] != 0:
-                average = round(score_map[i][1]/score_map[i][0], 1)
-                score_average.append((i, round(average, 1)))
-                if highest_score < average:
-                    highest_score = average
+                score_average.append((i, round(score_map[i][1], 1)))
+                if highest_score < score_map[i][1]:
+                    highest_score = score_map[i][1]
 
         # direção aleatoria dentre as com maior pontuação
         pool = []
@@ -58,15 +57,14 @@ class MonteCarlo ():
         first, score = self.program(
             display_range, snake, apple_pos, border, snake_direction)
         with self.lock:
-            score_map[first] = score_map[first][0] + \
-                1, score_map[first][1] + score
+            score_map[first] = score_map[first][0] + 1, score_map[first][1] + score
 
     def control_AI(self, direction: int, snake: tuple[list[int]], object: tuple[list[int]]):
         # pega a posição da cabeça
         current = snake[0]
 
         # lista de movimentos possiveis
-        move_list = [UP, DOWN, RIGHT, LEFT]
+        move_list = self.getPossibleMoves(current)
 
         # confere se esse movimento vai bater
         for move in move_list:
@@ -100,10 +98,7 @@ class MonteCarlo ():
         snake_bot = list(deepcopy(snake))
         snake_bot_direction = deepcopy(snake_direction)
         apple_bot_pos = deepcopy(apple_pos)
-        energy = (display_range/10) * 2
-        apple_count = 0
-        valor_step = 0
-        valor_death = 0
+        energy = ((display_range/10) ** 2)
         first_move = None
         while True:
             # --- controle AI ---
@@ -122,18 +117,27 @@ class MonteCarlo ():
 
             # --- maçã ---
             if collision(tuple(snake_bot[0]), apple_bot_pos):
-                apple_bot_pos = on_grid_random(display_range)
-                apple_count += 1  # Manipulate to AI
-                snake_bot = list(snake_bot).append([0, 0])
-                snake_bot = tuple(snake_bot)
-
-                energy = (display_range/10) * 2
+                return first_move, 10
             else:
                 energy -= 1
 
             # --- colisões ---
             if lose(snake[0], snake, border):
-                return first_move, apple_count
+                return first_move, 0
 
             if energy < 0:
-                return first_move, apple_count
+                return first_move, 0
+
+
+    def getPossibleMoves(self, current: list[int]) -> list[int]:
+        """ Return a possible moviment of the object based in the position """
+        possible_moves = []
+        if (current[0]/10) % 2 == 0:
+            possible_moves.append(DOWN)
+        if (current[0]/10) % 2 == 1:
+            possible_moves.append(UP)
+        if (current[1]/10) % 2 == 0:
+            possible_moves.append(LEFT)
+        if (current[1]/10) % 2 == 1:
+            possible_moves.append(RIGHT)
+        return possible_moves

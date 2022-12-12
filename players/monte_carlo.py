@@ -40,11 +40,9 @@ class MonteCarlo ():
         score_average = []
         for i in range(4):
             if score_map[i][0] != 0:
-                # average = round(score_map[i][1]/score_map[i][0], 1)
-                average = score_map[i][1]
-                score_average.append((i, round(average, 1)))
-                if highest_score < average:
-                    highest_score = average
+                score_average.append((i, round(score_map[i][1], 1)))
+                if highest_score < score_map[i][1]:
+                    highest_score = score_map[i][1]
 
         # direção aleatoria dentre as com maior pontuação
         pool = []
@@ -101,7 +99,6 @@ class MonteCarlo ():
         snake_bot_direction = deepcopy(snake_direction)
         apple_bot_pos = deepcopy(apple_pos)
         energy = ((display_range/10) ** 2)
-        apple_count = 0
         first_move = None
         while True:
             # --- controle AI ---
@@ -120,18 +117,16 @@ class MonteCarlo ():
 
             # --- maçã ---
             if collision(tuple(snake_bot[0]), apple_bot_pos):
-                apple_count += 10  # Manipulate to AI
-
-                return first_move, apple_count
+                return first_move, 10
             else:
                 energy -= 1
 
             # --- colisões ---
             if lose(snake[0], snake, border):
-                return first_move, apple_count
+                return first_move, 0
 
             if energy < 0:
-                return first_move, apple_count
+                return first_move, 0
 
 
     def getPossibleMoves(self, current: list[int]) -> list[int]:

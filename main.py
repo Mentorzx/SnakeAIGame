@@ -3,7 +3,7 @@ from ctypes import windll
 from pygame import init, quit, display, time, draw, Rect
 import game
 import record
-import players.a_star
+from players.a_star import Agent
 import players.monte_carlo
 
 UP = 0
@@ -27,6 +27,7 @@ def playback(playback_number: int, time_game_fps: int):
     score = 0
     snake_direction = None
     apple_pos = None
+
     for m in moves:
         if m.__contains__('DEATH'):
             break
@@ -83,15 +84,14 @@ def program(name: str, display_range: int, time_game_fps: int, color_background:
     start_time = time.get_ticks()
     snake_direction = LEFT
     score = 0
-    astar = players.a_star.AStar()
     monteCarlo = players.monte_carlo.MonteCarlo()
     record_str = record.startRecord(display_range, snake)
     while True:
         # region Input
-        # eventAI = astar.getKey(apple_pos, tuple(snake),
-        #                        snake_direction, border)
-        # snake_direction = game.control(eventAI, snake_direction)
-        snake_direction = monteCarlo.control(display_range, snake, apple_pos, border, snake_direction)
+        snake_direction = Agent.makeDecision(
+            snake, apple_pos, snake_direction, border, display_range)
+        # snake_direction = LEFT
+        # snake_direction = monteCarlo.control(display_range, snake, apple_pos, border, snake_direction)
         game.inputKey(snake_direction)
         # endregion
 
@@ -111,7 +111,7 @@ def program(name: str, display_range: int, time_game_fps: int, color_background:
 if __name__ == '__main__':
     name = 'Snake AI'
     display_range = 120
-    time_game = 10
+    time_game = 50
     color_background = BLACK
     color_infos = TURQUOISE
     color_apple = RED
@@ -121,5 +121,5 @@ if __name__ == '__main__':
     program(name, display_range, time_game, color_background,
             color_infos, color_apple, color_snake, color_snake_border)
 
-    record_number = 5
+    record_number = 8
     playback(record_number, time_game)

@@ -77,14 +77,12 @@ def snakeMoviment(snake: tuple[list[int]], snake_direction: int, apple_pos: tupl
     snake = motor_snake(snake_direction, tuple(snake))
 
     # region Eat apple
-    # o gomo tem que ser criado antes de reposicionar para que o novo gomo já seja reposicionado
     gotApple = collision(tuple(snake[0]), apple_pos)
     if gotApple:
         snake_list.append([0, 0])
     # endregion
 
     # region Move body
-    # reposiciona a cobra e o novo gomo se for o caso
     for i in range(len(snake_list) - 1, 0, -1):
         snake_list[i] = snake_list[i-1]
     snake_list[0] = [snake[0][0], snake[0][1]]
@@ -92,7 +90,6 @@ def snakeMoviment(snake: tuple[list[int]], snake_direction: int, apple_pos: tupl
     # endregion
 
     # region New apple
-    # a nova maçã tem que ser criada depois de reposicionar para que ela surga em um espaço vazio
     if gotApple:
         apple_pos = apple_pos if win(snake, display_range) else getNewApple(
             snake, apple_pos, display_range)

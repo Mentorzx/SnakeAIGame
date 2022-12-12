@@ -121,5 +121,5 @@ if __name__ == '__main__':
     program(name, display_range, time_game, color_background,
             color_infos, color_apple, color_snake, color_snake_border)
 
-    record_number = 5
+    record_number = 10
     playback(record_number, time_game)

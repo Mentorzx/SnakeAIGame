@@ -24,6 +24,7 @@ def playback(playback_number: int, time_game_fps: int):
     score = 0
     snake_direction = None
     apple_pos = None
+
     for m in moves:
         if m.__contains__('DEATH'):
             break
@@ -80,17 +81,18 @@ def program(name: str, display_range: int, time_game_fps: int, color_background:
     record_str = record.startRecord(display_range, snake)
     while True:
         # region Input
-        snake_direction = monteCarlo.control(
-            display_range, snake, apple_pos, border, game.control(eventAI, snake_direction))
-        game.inputKey(snake_direction)
+        snake_direction = monteCarlo.control(display_range, snake, apple_pos, border, snake_direction)
         # endregion
+
         snake, apple_pos, score = game.snakeMoviment(
             tuple(snake), snake_direction, apple_pos, display_range, score)
+
         # region Screen/Display
         game.display_screen(screen, score, clock, time_game_fps, snake, snake_skin, apple,
                             apple_pos, start_time, color_background, color_snake_border, color_infos)
         display.update()
         # endregion
+        
         record_str += record.recordMoveFormat(snake_direction, apple_pos)
         gameOver(snake, border, display_range,
                  time_game_fps, score, start_time, record_str, color_background, color_infos, color_apple, color_snake, color_snake_border)
@@ -98,8 +100,8 @@ def program(name: str, display_range: int, time_game_fps: int, color_background:
 
 if __name__ == '__main__':
     name = 'Snake AI'
-    display_range = 300
-    time_game = 30
+    display_range = 120
+    time_game = 50
     color_background = BLACK
     color_infos = TURQUOISE
     color_apple = RED
@@ -109,5 +111,5 @@ if __name__ == '__main__':
     program(name, display_range, time_game, color_background,
             color_infos, color_apple, color_snake, color_snake_border)
 
-    record_number = 10
+    record_number = 8
     playback(record_number, time_game)

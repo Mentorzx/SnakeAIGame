@@ -30,8 +30,8 @@ class MonteCarlo ():
                   border, snake_direction, score_map]
 
         # --- chamados dos bots ---
-        with ThreadPoolExecutor(max_workers=10) as executor:
-            for index in range(10000):
+        with ThreadPoolExecutor(max_workers=15) as executor:
+            for index in range(15000):
                 executor.submit(self.thread_program, display_range, snake,
                                 apple_pos, border, snake_direction, score_map, index)
 

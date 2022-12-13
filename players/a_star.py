@@ -3,43 +3,18 @@ from pygame.locals import K_UP, K_DOWN, K_LEFT, K_RIGHT
 from game import lose, getPossibleMoves
 
 
-UP = 0
-RIGHT = 1
-DOWN = 2
-LEFT = 3
+class AStar:
+    """
+     A star algorithm implementation
+     f(n) = g(n) + h(n)
+     """
 
-
-class Agent:
-    DIRECTIONS = [[10, 0], [-10, 0], [0, 10], [0, -10]]
-    current_path = []
-
-    @staticmethod
-    def manhattenDistance(snake_position: tuple[int, int], apple_position: tuple[int, int]) -> int:
-        return abs(snake_position[0] - apple_position[0]) + abs(
-            snake_position[1] - apple_position[1]
-        )
-
-    @staticmethod
-    def reconstructPath(came_from: dict, current: tuple[int, int]) -> list[tuple[int, int]]:
-        """
-        Will return an array containing the optimal path
-        """
-        path = [current]
-        while current in came_from:
-            current = came_from[current]
-            path.append(current)
-        print(f"path: {path}")
-        return path
-
-    @staticmethod
-    def getNeighbors(snake: tuple[list[int]], current: tuple[int, int], border: tuple[list[int]], display_range: int) -> list[tuple[int, int]]:
-        directions = getPossibleMoves(current)
-        neighbors = [
-            (
-                current[0] + directions[i][0],
-                current[1] + directions[i][1],
-            )
-            for i in range(4)
+    def __init__(self):
+        self.paths = [
+            K_RIGHT,
+            K_LEFT,
+            K_UP,
+            K_DOWN
         ]
         self.invalid = {
             K_UP: K_DOWN,
